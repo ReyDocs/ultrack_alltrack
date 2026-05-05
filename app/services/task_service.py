@@ -22,7 +22,7 @@ def get_task(task_id: str, user_id: str) -> dict | None:
         .select("*")
         .eq("task_id", task_id)
         .eq("user_id", user_id)
-        .single()
+        .maybe_single()
         .execute()
     )
     return result.data

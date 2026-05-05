@@ -6,12 +6,12 @@ TABLE = "users"
 
 
 def get_user_by_id(user_id: str) -> dict | None:
-    result = supabase_admin.table(TABLE).select("*").eq("id", user_id).single().execute()
+    result = supabase_admin.table(TABLE).select("*").eq("id", user_id).maybe_single().execute()
     return result.data
 
 
 def get_user_by_email(email: str) -> dict | None:
-    result = supabase_admin.table(TABLE).select("*").eq("email", email).single().execute()
+    result = supabase_admin.table(TABLE).select("*").eq("email", email).maybe_single().execute()
     return result.data
 
 
