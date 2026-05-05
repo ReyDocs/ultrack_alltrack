@@ -26,19 +26,6 @@ def sign_up(body: SignUpRequest):
     if response.user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Sign-up failed.")
 
-    # Mirror the user into our own `users` table
-    new_user = UserCreate(
-        email=body.email,
-        first_name=body.first_name,
-        last_name=body.last_name,
-        auth_provider="email",
-        provider_id=response.user.id,
-        email_verified=False,
-    )
-    user_service.create_user(new_user.model_dump())
-
-    return {"message": "Account created. Please verify your email."}
-
 @router.post("/login")
 def login(body: EmailLoginRequest):
     """Sign in with email and password. Returns Supabase session tokens."""
