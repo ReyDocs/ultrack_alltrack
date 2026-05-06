@@ -31,13 +31,19 @@ def get_transaction(transaction_id: int, user_id: str) -> dict | None:
 
 def create_transaction(user_id: str, data: dict) -> dict:
     """Insert a new transaction."""
-    payload = {**data, "user_id": user_id}
+    payload = data.model_dump()
+    payload["user_id"] = user_id
+    payload["amount"] = float(payload["amount"])
     response = supabase_admin.table(TABLE).insert(payload).execute()
     return response.data[0]
 
 
 def update_transaction(transaction_id: int, user_id: str, data: dict) -> dict:
     """Update a transaction. Scoped to the user."""
+    
+    if "amount" in data:
+        data["amount"] = float(data["amount"])
+        
     response = (
         supabase_admin.table(TABLE)
         .update(data)

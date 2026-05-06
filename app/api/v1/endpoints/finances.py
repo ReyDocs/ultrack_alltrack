@@ -30,7 +30,7 @@ def create_transaction(
 ):
     """Log a new transaction for the authenticated user."""
     data = body.model_dump()
-    return finance_service.create_transaction(current_user["user_id"], data)
+    return finance_service.create_transaction(current_user["user_id"], body)
 
 
 @router.get("/{transaction_id}", response_model=TransactionResponse, summary="Get a transaction")
@@ -52,8 +52,8 @@ def update_transaction(
     txn = finance_service.get_transaction(transaction_id, current_user["user_id"])
     if not txn:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
-    data = body.model_dump(exclude_none=True)
-    return finance_service.update_transaction(transaction_id, current_user["user_id"], data)
+    payload = body.model_dump(exclude_none=True)
+    return finance_service.update_transaction(transaction_id, current_user["user_id"], payload)
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a transaction")
