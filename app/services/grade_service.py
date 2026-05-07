@@ -31,13 +31,19 @@ def get_course(course_id: str, user_id: str) -> dict | None:
 
 def create_course(user_id: str, data: dict) -> dict:
     """Insert a new course."""
-    payload = {**data, "user_id": user_id}
-    response = supabase_admin.table(TABLE).insert(payload).execute()
+    payload = data.model_dump()
+    payload["user_id"] = user_id
+    payload["course_grade"] = float(payload["course_grade"])
+    response = supabase_admin.table(TABLE).insert(payload).execute() 
     return response.data[0]
 
 
 def update_course(course_id: str, user_id: str, data: dict) -> dict:
     """Update a course row. Scoped to the user."""
+    
+    if "course_grade" in data:
+        data["course_grade"] = float(data["course_grade"])
+    
     response = (
         supabase_admin.table(TABLE)
         .update(data)
