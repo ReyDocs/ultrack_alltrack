@@ -42,8 +42,8 @@ def update_resource(
     resource = resource_service.get_resource(resource_id, current_user["user_id"])
     if not resource:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found.")
-    data = body.model_dump(exclude_none=True)
-    return resource_service.update_resource(resource_id, current_user["user_id"], body)
+    payload = body.model_dump(exclude_none=True)
+    return resource_service.update_resource(resource_id, current_user["user_id"], payload)
 
 
 @router.delete("/{resource_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a resource")

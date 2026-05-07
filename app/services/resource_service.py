@@ -31,11 +31,9 @@ def get_resource(resource_id: str, user_id: str) -> dict | None:
 
 def create_resource(user_id: str, data: dict) -> dict:
     """Insert a new resource entry."""
-    payload = {
-        **data,
-        "user_id": user_id,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    }
+    payload = data.model_dump()
+    payload["user_id"] = user_id
+    payload["created_at"] = datetime.now(timezone.utc).isoformat()
     response = supabase_admin.table(TABLE).insert(payload).execute()
     return response.data[0]
 
