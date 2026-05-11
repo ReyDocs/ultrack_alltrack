@@ -11,7 +11,6 @@ app = FastAPI(
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
 # Allow the frontend origin to call this API.
-# In production, replace with your actual frontend domain via FRONTEND_URL.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_url],
