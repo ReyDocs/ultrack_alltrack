@@ -15,8 +15,6 @@ class EmailLoginRequest(BaseModel):
 class SignUpRequest(BaseModel):
     email: EmailStr
     password: str
-    first_name: str | None = None
-    last_name: str | None = None
 
 @router.post("/signup")
 def sign_up(body: SignUpRequest):

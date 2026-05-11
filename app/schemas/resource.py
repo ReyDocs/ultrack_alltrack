@@ -1,21 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 from typing import Optional
 from datetime import datetime
 
 
 class ResourceCreate(BaseModel):
-    source_title: Optional[str] = None   # URL or title of the resource
-    user_notes: Optional[str] = None
+    url_links: HttpUrl
 
 
 class ResourceUpdate(BaseModel):
-    source_title: Optional[str] = None
-    user_notes: Optional[str] = None
+    url_links: Optional[HttpUrl] = None
 
 
 class ResourceResponse(BaseModel):
     resource_id: str
     user_id: str
-    source_title: Optional[str] = None
-    user_notes: Optional[str] = None
+    url_links: str
     created_at: datetime

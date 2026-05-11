@@ -1,20 +1,11 @@
--- ============================================================
---  ULTRACK — Supabase Database Schema
---  Run this entire file in: Supabase Dashboard → SQL Editor
--- ============================================================
-
-
 -- ── 1. USERS ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           VARCHAR(255) UNIQUE NOT NULL,
-    first_name      VARCHAR(100),
-    last_name       VARCHAR(100),
     avatar_url      TEXT,
     auth_provider   VARCHAR(50)  NOT NULL,
     provider_id     VARCHAR(255) NOT NULL,
     email_verified  BOOLEAN      NOT NULL DEFAULT FALSE,
-    role            VARCHAR(50)  NOT NULL DEFAULT 'user',
     created_at      TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_login      TIMESTAMP
 );
@@ -48,8 +39,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS resources (
     resource_id  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id      UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    source_title VARCHAR(255),
-    user_notes   TEXT,
+    url_links   TEXT,
     created_at   TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
