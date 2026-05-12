@@ -16,7 +16,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
             )
-        return {"user_id": response.user.id, "email": response.user.email}
+        return {
+            "user_id": response.user.id, 
+            "email": response.user.email,
+            "user_metadata": response.user.user_metadata
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
