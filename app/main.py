@@ -24,8 +24,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         settings.frontend_url,
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+        "https://www.ultrack.site",
+        "https://www.ultrack.site/",
     ],
     allow_credentials=True,
     allow_methods=["*"],
