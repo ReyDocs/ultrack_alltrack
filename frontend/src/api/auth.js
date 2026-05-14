@@ -1,3 +1,4 @@
+import { supabase } from "../config/supabase";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
 
 async function parseJsonResponse(response) {
@@ -12,9 +13,16 @@ async function parseJsonResponse(response) {
 }
 
 async function request(path, options = {}) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const accessToken = session?.access_token;
+
   const headers = {
     ...(options.headers || {}),
   };
+
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
 
   if (options.body) {
     headers['Content-Type'] = 'application/json';
@@ -60,11 +68,14 @@ export async function signup(credentials) {
   });
 }
 
-export function googleLogin() {
-  const BACKEND_URL =
-    import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '');
-    
-  window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
+
+export async function googleLogin() {
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "https://ultrackalltrack.vercel.app"
+    }
+  });
 }
 
 export async function logout() {

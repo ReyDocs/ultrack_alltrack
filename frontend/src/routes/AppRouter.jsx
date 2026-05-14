@@ -12,7 +12,6 @@ import PomodoroPage from '../pages/PomodoroPage/PomodoroPage';
 import CareerPage from '../pages/CareerPage/CareerPage';
 import TermsPage from '../pages/TermsPage/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage/PrivacyPage';
-import AuthCallbackPage from '../pages/AuthCallbackPage/AuthCallbackPage';
 import PageTransition from '../components/PageTransition/PageTransition';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,7 +41,6 @@ function AnimatedRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/to-dos" element={<ProtectedRoute><TodosPage /></ProtectedRoute>} />
         <Route path="/finances" element={<ProtectedRoute><FinancesPage /></ProtectedRoute>} />
