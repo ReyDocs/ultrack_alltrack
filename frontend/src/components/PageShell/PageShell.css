@@ -1,0 +1,129 @@
+.page-shell {
+  width: min(100%, 1220px);
+  margin: 0 auto;
+  padding: 0 clamp(18px, 3.6vw, 52px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.page-shell__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  animation: fade-in var(--dur-page) var(--ease-cinematic) both;
+}
+
+.page-shell__profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-shell__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  animation: scale-in var(--dur-card) var(--ease-cinematic) 60ms both;
+}
+
+.page-shell__name {
+  margin: 0;
+  color: #f5f2ee;
+  font-size: 22px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.page-shell__subtitle {
+  margin: 5px 0 0;
+  color: rgba(167, 171, 195, 0.75);
+  font-size: 14.5px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+}
+
+.page-shell__logout {
+  width: 44px;
+  height: 44px;
+  margin-top: 2px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition:
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.page-shell__logout:hover,
+.page-shell__logout:focus-visible {
+  opacity: 0.68;
+  transform: translateY(-1px);
+}
+
+.page-shell__logout:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+  transition-duration: 80ms;
+}
+
+.page-shell__logout img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.page-shell__content {
+  flex: 1;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .page-shell {
+    gap: 20px;
+    padding: 0;  /* DashboardLayout__main handles padding on mobile */
+  }
+
+  .page-shell__header {
+    align-items: center;
+  }
+
+  .page-shell__avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .page-shell__name {
+    font-size: 19px;
+  }
+
+  .page-shell__subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-shell__avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .page-shell__name {
+    font-size: 17px;
+  }
+
+  .page-shell__subtitle {
+    font-size: 12px;
+  }
+
+  .page-shell__logout img {
+    width: 22px;
+    height: 22px;
+  }
+}
+

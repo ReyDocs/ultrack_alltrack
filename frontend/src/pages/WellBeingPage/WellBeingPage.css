@@ -1,0 +1,165 @@
+.wellbeing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Page title ─────────────────────────────────────────────────────────── */
+.wellbeing-page__title {
+  margin: 0 0 18px;
+  color: #f5f2ee;
+  font-size: 38px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.05;
+}
+
+/* ─── Horizontal rule ─────────────────────────────────────────────────────── */
+.wellbeing-page__divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  margin: 0 0 36px;
+}
+
+/* ─── Mood tile grid ─────────────────────────────────────────────────────── */
+.wellbeing-moods {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0 auto 56px;
+  max-width: 860px;
+  width: 100%;
+}
+
+.wellbeing-mood {
+  --burnout-accent: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  border: 2.5px solid transparent;
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  /* Asset proportions: 14:16 portrait — same as dashboard widget tiles */
+  aspect-ratio: 14 / 16;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+/* Full-bleed fill — asset carries its own background, no cropping */
+.wellbeing-mood__img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  border-radius: 18px;
+}
+
+.wellbeing-mood:hover {
+  transform: translateY(-3px) scale(1.01);
+  border-color: color-mix(in srgb, var(--burnout-accent) 50%, transparent);
+}
+
+.wellbeing-mood:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* Selected: per-mood accent ring (--burnout-accent set via inline style in JSX) */
+.wellbeing-mood--active {
+  border-color: var(--burnout-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--burnout-accent) 28%, transparent);
+}
+
+/* stagger mood tile entrance */
+.wellbeing-moods .wellbeing-mood:nth-child(1) { animation-delay: 0ms;  }
+.wellbeing-moods .wellbeing-mood:nth-child(2) { animation-delay: 60ms; }
+.wellbeing-moods .wellbeing-mood:nth-child(3) { animation-delay: 120ms; }
+
+/* ─── Response section ───────────────────────────────────────────────────── */
+.wellbeing-response {
+  text-align: center;
+  padding: 0 16px;
+  animation: fade-in var(--dur-page) var(--ease-cinematic) 120ms both;
+}
+
+.wellbeing-response__heading {
+  margin: 0 0 18px;
+  font-size: clamp(48px, 6vw, 72px);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  /* color applied inline per mood */
+}
+
+.wellbeing-response__message {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: clamp(16px, 1.6vw, 20px);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.65;
+}
+
+/* ─── Video Embed ────────────────────────────────────────────────────────── */
+.wellbeing-video-container {
+  margin: 56px auto 0;
+  max-width: 860px;
+  width: 100%;
+  position: relative;
+  /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: fade-in var(--dur-page) var(--ease-cinematic) 200ms both;
+}
+
+.wellbeing-video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .wellbeing-moods {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .wellbeing-page__title {
+    font-size: 28px;
+  }
+
+  .wellbeing-moods {
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .wellbeing-mood {
+    border-radius: 14px;
+  }
+
+  .wellbeing-mood__img {
+    border-radius: 12px;
+  }
+
+  .wellbeing-response__heading {
+    font-size: 36px;
+  }
+
+  .wellbeing-video-container {
+    margin-top: 36px;
+    border-radius: 14px;
+  }
+}
