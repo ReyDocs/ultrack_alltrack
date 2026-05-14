@@ -30,7 +30,8 @@ def create_course(
 ):
     """Add a course entry for the authenticated user."""
     data = body.model_dump()
-    return grade_service.create_course(current_user["user_id"], body)
+    data["course_grade"] = float(data["course_grade"])
+    return grade_service.create_course(current_user["user_id"], data)
 
 
 @router.get("/{course_id}", response_model=CourseResponse, summary="Get a course")
@@ -52,7 +53,7 @@ def update_course(
     course = grade_service.get_course(course_id, current_user["user_id"])
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
-    payload = body.model_dump(exclude_none=True)
+    payload = body.model_dump(exclude_unset=True)
     return grade_service.update_course(course_id, current_user["user_id"], payload)
 
 

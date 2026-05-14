@@ -11,6 +11,11 @@ class ResourceCreate(BaseModel):
 class ResourceUpdate(BaseModel):
     url_links: Optional[HttpUrl] = None
     resource_title: Optional[str] = None
+    model_config = {
+        "json_schema_extra": {
+            "example": {}
+        }
+    }
 
 
 class ResourceResponse(BaseModel):

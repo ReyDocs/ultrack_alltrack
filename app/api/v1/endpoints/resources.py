@@ -20,7 +20,8 @@ def create_resource(
 ):
     """Save a new link or resource for the authenticated user."""
     data = body.model_dump()
-    return resource_service.create_resource(current_user["user_id"], body)
+    data["url_links"] = str(data["url_links"])
+    return resource_service.create_resource(current_user["user_id"], data)
 
 
 @router.get("/{resource_id}", response_model=ResourceResponse, summary="Get a resource")
@@ -42,7 +43,7 @@ def update_resource(
     resource = resource_service.get_resource(resource_id, current_user["user_id"])
     if not resource:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found.")
-    payload = body.model_dump(exclude_none=True)
+    payload = body.model_dump(exclude_unset=True)
     return resource_service.update_resource(resource_id, current_user["user_id"], payload)
 
 

@@ -61,9 +61,23 @@ def delete_transaction(transaction_id: int, user_id: str) -> None:
 
 def get_total_balance(user_id: str) -> Decimal:
     """
-    Sum all amount values for the user.
-    Positive amounts = income, negative amounts = expenses.
+    Calculate total balance: base_balance (from users) - sum(all transaction amounts)
+    Transactions are now considered purely as expenses (positive numbers).
     """
+    # 1. Get base balance from users table
+    user_response = (
+        supabase_admin.table("users")
+        .select("base_balance")
+        .eq("id", user_id)
+        .maybe_single()
+        .execute()
+    )
+    
+    base_balance = Decimal("0.00")
+    if user_response.data and user_response.data.get("base_balance") is not None:
+        base_balance = Decimal(str(user_response.data["base_balance"]))
+
+    # 2. Get all transactions
     response = (
         supabase_admin.table(TABLE)
         .select("amount")
@@ -71,5 +85,7 @@ def get_total_balance(user_id: str) -> Decimal:
         .execute()
     )
     rows = response.data or []
-    total = sum(Decimal(str(row["amount"])) for row in rows)
-    return total
+    total_expenses = sum(Decimal(str(row["amount"])) for row in rows)
+    
+    # 3. Calculate new balance
+    return base_balance - total_expenses

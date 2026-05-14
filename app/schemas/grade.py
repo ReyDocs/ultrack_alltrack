@@ -13,6 +13,11 @@ class CourseUpdate(BaseModel):
     course_code: Optional[str] = None
     units: Optional[int] = None
     course_grade: Optional[Decimal] = None
+    model_config = {
+        "json_schema_extra": {
+            "example": {}
+        }
+    }
 
 
 class CourseResponse(BaseModel):

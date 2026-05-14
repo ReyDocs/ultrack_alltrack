@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
+from decimal import Decimal
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -12,6 +13,12 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
+    base_balance: Optional[Decimal] = None
+    model_config = {
+        "json_schema_extra": {
+            "example": {}
+        }
+    }
 
 class UserResponse(BaseModel):
     id: str
@@ -21,6 +28,7 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     last_login: Optional[datetime] = None
     username: Optional[str] = None
+    base_balance: Optional[Decimal] = None
 
     class Config:
         from_attributes = True
