@@ -1,0 +1,53 @@
+.dashboard-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 23% 5%, rgba(72, 13, 18, 0.46), transparent 24%),
+    radial-gradient(circle at 84% 38%, rgba(112, 30, 14, 0.42), transparent 26%),
+    radial-gradient(circle at 42% 51%, rgba(34, 34, 34, 0.4), transparent 22%),
+    linear-gradient(180deg, #080909 0%, #0c0c0b 43%, #090909 100%);
+  overflow-x: hidden;
+}
+
+.dashboard-layout__main {
+  min-width: 0;
+  padding: 73px 0 72px;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .dashboard-layout__main {
+    padding: 36px 20px 56px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-layout__main {
+    /*
+     * Fixed bottom nav is ~64px tall.
+     * Add safe-area-inset-bottom so content stays clear on notched devices.
+     * Also add safe-area insets on left/right for landscape mode.
+     */
+    padding:
+      24px
+      max(14px, env(safe-area-inset-right, 0px))
+      calc(80px + env(safe-area-inset-bottom, 0px))
+      max(14px, env(safe-area-inset-left, 0px));
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-layout__main {
+    padding:
+      20px
+      max(12px, env(safe-area-inset-right, 0px))
+      calc(76px + env(safe-area-inset-bottom, 0px))
+      max(12px, env(safe-area-inset-left, 0px));
+  }
+}
+

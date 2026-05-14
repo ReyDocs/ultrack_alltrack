@@ -1,0 +1,266 @@
+.grades-page {}
+
+/* ─── Dark card ──────────────────────────────────────────────────────────── */
+.grades-card {
+  background:
+    radial-gradient(ellipse at 80% 100%, rgba(90, 12, 10, 0.55), transparent 48%),
+    radial-gradient(ellipse at 20% 0%, rgba(70, 10, 8, 0.38), transparent 42%),
+    linear-gradient(180deg, #1a0b09 0%, #150806 100%);
+  border-radius: 18px;
+  padding: 40px 44px 40px;
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+.grades-card__title {
+  margin: 0 0 16px;
+  color: #f5f2ee;
+  font-size: 30px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.06;
+}
+
+.grades-card__desc {
+  margin: 0 0 36px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.6;
+  max-width: 780px;
+}
+
+/* ─── Table layout ───────────────────────────────────────────────────────── */
+.grades-table__header {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr 56px;
+  gap: 16px;
+  align-items: center;
+  padding: 0 0 14px;
+  color: #f5f2ee;
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.grades-table__col-course {
+  text-align: left;
+}
+
+.grades-table__col-action {
+  text-align: center;
+}
+
+.grades-table__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.grades-table__row {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr 56px;
+  gap: 16px;
+  align-items: center;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────────────────── */
+.grades-input {
+  width: 100%;
+  height: 52px;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.62);
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  padding: 0 14px;
+  outline: none;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+  box-sizing: border-box;
+}
+
+.grades-input:focus {
+  border-color: rgba(255, 255, 255, 0.55);
+  background-color: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+.grades-input::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+/* units: center text */
+.grades-input--units {
+  text-align: center;
+  padding: 0 8px;
+  -moz-appearance: textfield;
+}
+.grades-input--units::-webkit-outer-spin-button,
+.grades-input--units::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* grade select wrapper (custom arrow) */
+.grades-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.grades-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.grades-select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* override select option colors */
+.grades-select option {
+  background: #1a1a1a;
+  color: #f5f2ee;
+}
+
+/* ─── Delete / trash button ──────────────────────────────────────────────── */
+.grades-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.44);
+  cursor: pointer;
+  margin: 0 auto;
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.grades-delete-btn:hover:not(:disabled) {
+  color: rgba(255, 80, 80, 0.9);
+  background: rgba(255, 80, 80, 0.08);
+  transform: scale(1.08);
+}
+
+.grades-delete-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── Footer actions ─────────────────────────────────────────────────────── */
+.grades-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.grades-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #f5f2ee;
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.grades-btn:hover,
+.grades-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+}
+
+.grades-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.grades-btn--add {
+  /* outlined style, matching reference */
+}
+
+.grades-btn--calculate {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .grades-card {
+    padding: 28px 28px 32px;
+  }
+
+  .grades-table__header,
+  .grades-table__row {
+    grid-template-columns: 1fr 90px 1fr 44px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .grades-card {
+    padding: 20px 16px 24px;
+    border-radius: 14px;
+  }
+
+  .grades-card__title {
+    font-size: 22px;
+  }
+
+  .grades-table__header {
+    display: none;
+  }
+
+  .grades-table__row {
+    grid-template-columns: 1fr 70px;
+    grid-template-rows: auto auto;
+    gap: 8px;
+  }
+
+  .grades-table__col-grade {
+    grid-column: 1 / -1;
+  }
+
+  .grades-table__col-action {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .grades-card__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grades-btn {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,605 @@
+/* ─── Sidebar container ───────────────────────────────────────────────────── */
+.dashboard-sidebar {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  /* Wider column gives more breathing room for labels + padding */
+  width: 216px;
+  padding: 44px 0 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;        /* items fill full width for even padding */
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 10% 18%, rgba(92, 19, 18, 0.22), transparent 38%),
+    linear-gradient(180deg, rgba(18, 5, 4, 0.88), rgba(4, 4, 4, 0.92));
+  animation: fade-in var(--dur-slow) var(--ease-out-soft) both;
+}
+
+/* ─── Brand / mascot ─────────────────────────────────────────────────────── */
+.dashboard-sidebar__brand {
+  width: 80px;
+  height: 118px;
+  display: grid;
+  place-items: center;
+  /* Center brand horizontally within the wider sidebar */
+  margin: 0 auto 44px;
+  animation: card-enter var(--dur-page) var(--ease-cinematic) 80ms both;
+}
+
+.dashboard-sidebar__brand img {
+  width: 80px;
+  height: 118px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* ─── Nav list ────────────────────────────────────────────────────────────── */
+.dashboard-sidebar__nav {
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+  /* Reduced gap — vertical rhythm comes from item padding, not gap */
+  gap: 2px;
+  /* Horizontal inset so items don't hug the edges */
+  padding: 0 12px;
+  /* Items group at top; Lock In anchored to bottom via divider margin */
+  justify-content: flex-start;
+}
+
+/* ─── Nav item ────────────────────────────────────────────────────────────── */
+.dashboard-sidebar__item {
+  width: 100%;
+  min-height: 52px;
+  /* Comfortable generous horizontal padding, balanced vertical */
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: rgba(244, 240, 236, 0.58);
+  display: flex;
+  flex-direction: row;          /* horizontal icon + label layout */
+  align-items: center;
+  gap: 11px;
+  /* Slightly smaller than before — feels less heavy at this width */
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out);
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+/* ─── Hover ───────────────────────────────────────────────────────────────── */
+.dashboard-sidebar__item:hover,
+.dashboard-sidebar__item:focus-visible {
+  color: rgba(255, 255, 255, 0.92);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-sidebar__item:active {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: scale(0.99);
+  transition-duration: 80ms;
+}
+
+/* ─── Active / current page ──────────────────────────────────────────────── */
+/*
+ * "Quietly confident" active state:
+ * — slightly brighter text
+ * — very subtle tinted background
+ * — a fine left-edge accent line (instead of underline)
+ * — no heavy fill, no aggressive glow
+ */
+.dashboard-sidebar__item[aria-current='page'],
+.dashboard-sidebar__item--active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Left-edge accent — slim, elegant, unanimated (underline felt out of place horizontally) */
+.dashboard-sidebar__item[aria-current='page']::before,
+.dashboard-sidebar__item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5px;
+  height: 56%;
+  border-radius: 0 2px 2px 0;
+  background: rgba(255, 255, 255, 0.72);
+  animation: scale-in var(--dur-micro) var(--ease-cinematic) both;
+}
+
+/* Remove the old underline on labels (replaced by left-edge accent) */
+.dashboard-sidebar__item[aria-current='page'] span:last-child,
+.dashboard-sidebar__item--active span:last-child {
+  position: static;
+}
+
+.dashboard-sidebar__item[aria-current='page'] span:last-child::after,
+.dashboard-sidebar__item--active span:last-child::after {
+  display: none;
+}
+
+/* ─── Icon container ─────────────────────────────────────────────────────── */
+.dashboard-sidebar__item-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  opacity: 0.72;
+  transition:
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.dashboard-sidebar__item:hover .dashboard-sidebar__item-icon,
+.dashboard-sidebar__item:focus-visible .dashboard-sidebar__item-icon,
+.dashboard-sidebar__item[aria-current='page'] .dashboard-sidebar__item-icon,
+.dashboard-sidebar__item--active .dashboard-sidebar__item-icon {
+  opacity: 1;
+}
+
+.dashboard-sidebar__item:hover .dashboard-sidebar__item-icon,
+.dashboard-sidebar__item:focus-visible .dashboard-sidebar__item-icon {
+  transform: translateX(1px);
+}
+
+.dashboard-sidebar__item-icon img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* ─── Lock In section separator ──────────────────────────────────────────── */
+/*
+ * A fine horizontal rule between the nav group and Lock In
+ * creates a natural hierarchy break without adding visual noise.
+ */
+.dashboard-sidebar__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  /* auto top margin pushes divider + Lock In to the bottom */
+  margin: auto 20px 20px;
+  flex-shrink: 0;
+}
+
+/* ─── Lock In button ─────────────────────────────────────────────────────── */
+.dashboard-sidebar__lock {
+  /* Horizontally centered within the sidebar */
+  align-self: center;
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(244, 240, 236, 0.82);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.dashboard-sidebar__lock:hover,
+.dashboard-sidebar__lock:focus-visible {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.dashboard-sidebar__lock:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* Lock icon pill */
+.dashboard-sidebar__lock-icon {
+  width: 72px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(52, 52, 52, 0.94), rgba(6, 8, 8, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow:
+    0 0 16px rgba(255, 255, 255, 0.10),
+    0 10px 20px rgba(0, 0, 0, 0.42),
+    inset 0 0 8px rgba(255, 255, 255, 0.14);
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
+}
+
+.dashboard-sidebar__lock:hover .dashboard-sidebar__lock-icon,
+.dashboard-sidebar__lock:focus-visible .dashboard-sidebar__lock-icon {
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.18),
+    0 10px 20px rgba(0, 0, 0, 0.42),
+    inset 0 0 10px rgba(255, 255, 255, 0.22);
+}
+
+.dashboard-sidebar__lock-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* ─── Responsive: tablet (1024px and below) ───────────────────────────────── */
+@media (max-width: 1023px) {
+  .dashboard-sidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    padding: 14px 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    animation: none;
+  }
+
+  .dashboard-sidebar__brand {
+    width: 38px;
+    height: 56px;
+    margin: 0;
+    flex-shrink: 0;
+    animation: none;
+  }
+
+  .dashboard-sidebar__brand img {
+    width: 38px;
+    height: 56px;
+  }
+
+  .dashboard-sidebar__nav {
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding: 0 12px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .dashboard-sidebar__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Horizontal items: stack icon above label again */
+  .dashboard-sidebar__item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 68px;
+    min-height: 52px;
+    flex: 0 0 auto;
+    font-size: 11.5px;
+    padding: 7px 10px;
+    gap: 5px;
+    text-align: center;
+    animation: none;
+    scroll-snap-align: start;
+  }
+
+  /* Active indicator: switch back to underline on horizontal layout */
+  .dashboard-sidebar__item[aria-current='page']::before,
+  .dashboard-sidebar__item--active::before {
+    /* Bottom underline for horizontal nav */
+    left: 50%;
+    top: auto;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    animation: underline-in var(--dur-micro) var(--ease-cinematic) both;
+  }
+
+  .dashboard-sidebar__item-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dashboard-sidebar__item-icon img {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Icon nudges up on horizontal hover (not sideways) */
+  .dashboard-sidebar__item:hover .dashboard-sidebar__item-icon,
+  .dashboard-sidebar__item:focus-visible .dashboard-sidebar__item-icon {
+    transform: translateY(-1px);
+  }
+
+  /* Hide the divider in horizontal layout */
+  .dashboard-sidebar__divider {
+    display: none;
+  }
+
+  .dashboard-sidebar__lock {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    gap: 6px;
+  }
+
+  .dashboard-sidebar__lock-icon {
+    width: 56px;
+    height: 34px;
+  }
+
+  .dashboard-sidebar__lock-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ─── Responsive: mobile (≤767px) — Premium bottom navigation bar ─────────── */
+/*
+ * On phones, the sidebar transforms into a floating bottom navigation bar.
+ * This is the industry-standard premium mobile UX pattern (Linear, Notion,
+ * Stripe iOS, Apple apps). It maximises thumb accessibility and frees the
+ * full viewport height for content.
+ *
+ * IMPORTANT: Desktop (≥1024px) and tablet (768–1023px) are UNTOUCHED.
+ * All changes here are strictly inside this media query block.
+ */
+@media (max-width: 767px) {
+  .dashboard-sidebar {
+    /* ── Position: floating bottom dock ── */
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom, 8px));
+    left: 16px;
+    right: 16px;
+    top: auto;           /* override sticky */
+    width: auto;
+    min-height: auto;
+    height: auto;
+    z-index: 100;
+
+    /* ── Layout: single horizontal row ── */
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 28px;
+
+    /* ── Visual: premium dark glass look ── */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(92, 19, 18, 0.15), transparent 60%),
+      linear-gradient(180deg, rgba(16, 6, 5, 0.92), rgba(6, 4, 4, 0.98));
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 
+      0 16px 32px rgba(0, 0, 0, 0.4),
+      0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: none;
+  }
+
+  /* Hide the mascot brand — not needed in bottom nav */
+  .dashboard-sidebar__brand {
+    display: none;
+  }
+
+  /* Hide the divider — not meaningful in bottom nav */
+  .dashboard-sidebar__divider {
+    display: none;
+  }
+
+  /* ── Nav list: scrollable for breathing room ── */
+  .dashboard-sidebar__nav {
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0;
+    
+    /* Enable horizontal scroll to avoid equal-but-cramped spacing */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .dashboard-sidebar__nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  /* ── Nav items: icon above label, column layout ── */
+  .dashboard-sidebar__item {
+    flex: 0 0 auto;          /* Do not squash! Let them breathe */
+    min-width: 60px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 8px;
+    gap: 4px;
+    font-size: 10px;
+    letter-spacing: 0;
+    border-radius: 16px;     /* soft pill radius */
+    min-height: 52px;        /* comfortable tap target */
+    animation: none;
+    scroll-snap-align: start;
+    overflow: hidden;
+    /* Reset inheritance */
+    background-color: transparent;
+    transition: all var(--dur-hover) var(--ease-out);
+  }
+
+  /* Label span in bottom nav: block + wrap if needed */
+  .dashboard-sidebar__item > span:last-child {
+    display: block;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  /* ── Active State ── */
+  /* Remove the edge accent lines inherited from desktop */
+  .dashboard-sidebar__item[aria-current='page']::before,
+  .dashboard-sidebar__item--active::before {
+    display: none;
+  }
+
+  /* Confident, soft, premium active pill */
+  .dashboard-sidebar__item[aria-current='page'],
+  .dashboard-sidebar__item--active {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    /* subtle scale for confident emphasis */
+    transform: scale(1.02);
+  }
+
+  .dashboard-sidebar__item[aria-current='page'] > span:last-child,
+  .dashboard-sidebar__item--active > span:last-child {
+    opacity: 1;
+    font-weight: var(--font-weight-bold);
+  }
+
+  .dashboard-sidebar__item-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dashboard-sidebar__item-icon img {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Icon nudges up on hover (touch devices don't hover, but for desktop emu) */
+  .dashboard-sidebar__item:hover .dashboard-sidebar__item-icon,
+  .dashboard-sidebar__item:focus-visible .dashboard-sidebar__item-icon {
+    transform: translateY(-1px);
+  }
+
+  /* ── Lock In: pinned to the right ── */
+  .dashboard-sidebar__lock {
+    flex: 0 0 auto;
+    width: 64px;             /* comfortable target */
+    min-height: 52px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 10px;
+    letter-spacing: 0;
+    color: rgba(244, 240, 236, 0.7);
+    display: inline-flex;
+    padding: 8px 4px;
+    margin-left: 8px;
+    
+    /* Separator line for visual rhythm */
+    position: relative;
+    border-radius: 16px;
+  }
+
+  .dashboard-sidebar__lock::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 15%;
+    bottom: 15%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Compact lock icon — matches nav item icon size */
+  .dashboard-sidebar__lock-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: linear-gradient(180deg, rgba(52, 52, 52, 0.7), rgba(6, 8, 8, 0.8));
+    box-shadow:
+      0 0 8px rgba(255, 255, 255, 0.06),
+      inset 0 0 4px rgba(255, 255, 255, 0.08);
+  }
+
+  .dashboard-sidebar__lock-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* ─── Small phone (≤480px) — space optimization ───────────────────────────── */
+@media (max-width: 480px) {
+  .dashboard-sidebar {
+    /* Slightly smaller insets on very small screens */
+    left: 12px;
+    right: 12px;
+    padding: 6px 8px;
+    border-radius: 24px;
+  }
+
+  .dashboard-sidebar__item {
+    min-width: 56px;
+    padding: 6px 4px;
+    min-height: 48px;
+  }
+
+  /* Soften text label slightly to keep breathing room */
+  .dashboard-sidebar__item > span:last-child {
+    font-size: 9.5px;
+  }
+
+  .dashboard-sidebar__item-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dashboard-sidebar__item-icon img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dashboard-sidebar__lock {
+    width: 56px;
+    min-height: 48px;
+    padding: 6px 2px;
+    margin-left: 4px;
+    font-size: 9.5px;
+  }
+  
+  .dashboard-sidebar__lock::before {
+    left: -2px;
+  }
+
+  .dashboard-sidebar__lock-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dashboard-sidebar__lock-icon svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+

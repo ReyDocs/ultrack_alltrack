@@ -1,0 +1,117 @@
+/* ─── ULTRACKER · Unified Motion System ─────────────────────────────────────
+   All keyframes and utility animation classes live here.
+   Components import motion tokens from variables.css and reference
+   these utilities or write inline animation shorthand with the same tokens.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Keyframes ────────────────────────────────────────────────────────────── */
+
+/* Page/route entrance — content settles upward into place */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card/widget entrance — slightly more pronounced lift */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pure opacity fade — for overlays, labels, badges */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Slide-down — for dropdowns, section headers */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in — for modals, tooltips */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Active indicator (sidebar underline) slides in */
+@keyframes underline-in {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Subtle progress bar fill */
+@keyframes fill-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Utility Classes ──────────────────────────────────────────────────────── */
+
+.anim-page-enter {
+  animation: page-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+.anim-card-enter {
+  animation: card-enter var(--dur-card) var(--ease-cinematic) both;
+}
+
+.anim-fade-in {
+  animation: fade-in var(--dur-micro) var(--ease-out) both;
+}
+
+.anim-slide-down {
+  animation: slide-down var(--dur-micro) var(--ease-cinematic) both;
+}
+
+.anim-scale-in {
+  animation: scale-in var(--dur-modal) var(--ease-cinematic) both;
+}
+
+/* Stagger helpers — apply to parent, children pick up nth-child delays */
+.anim-stagger > *:nth-child(1) { animation-delay: 0ms;   }
+.anim-stagger > *:nth-child(2) { animation-delay: 40ms;  }
+.anim-stagger > *:nth-child(3) { animation-delay: 80ms;  }
+.anim-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.anim-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.anim-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.anim-stagger > *:nth-child(7) { animation-delay: 240ms; }
+
+/* ── Accessibility — prefers-reduced-motion ──────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

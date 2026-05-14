@@ -1,0 +1,77 @@
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #0b0504; /* Deep rich dark matching app theme */
+  display: grid;
+  place-items: center;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+  will-change: opacity, visibility;
+}
+
+.preloader--fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  transform: scale(1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.preloader--fade-out .preloader__content {
+  transform: scale(0.97); /* Soft scale-down on exit */
+}
+
+.preloader__logo {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+  /* Very subtle, premium breathing effect */
+  animation: preloader-breath 2.5s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+/* Minimalist loading indicator under the logo */
+.preloader__pulse {
+  width: 48px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.preloader__pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: inherit;
+  animation: preloader-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes preloader-breath {
+  0% { transform: scale(0.98); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes preloader-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+@media (max-width: 767px) {
+  .preloader__logo {
+    width: 110px;
+  }
+}

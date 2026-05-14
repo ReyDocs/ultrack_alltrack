@@ -1,0 +1,13 @@
+/* Route transition: subtle settle-in on every navigation */
+.page-transition {
+  animation: page-enter var(--dur-page) var(--ease-cinematic) both;
+  /* Ensure the wrapper doesn't break any layout */
+  display: contents;
+}
+
+/* On very small / low-power devices keep it snappy */
+@media (max-width: 480px) {
+  .page-transition {
+    animation-duration: var(--dur-micro);
+  }
+}

@@ -1,0 +1,533 @@
+/* ─── Base card shell ────────────────────────────────────────────────────── */
+.dashboard-card {
+  position: relative;
+  min-width: 0;
+  padding: 24px 26px 22px;
+  display: flex;
+  flex-direction: column;
+  color: #f7f5f2;
+  background:
+    radial-gradient(ellipse at 18% 0%, rgba(90, 12, 10, 0.52), transparent 38%),
+    radial-gradient(ellipse at 88% 16%, rgba(88, 14, 10, 0.42), transparent 34%),
+    linear-gradient(180deg, #111110 0%, #0c0c0b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 44px rgba(0, 0, 0, 0.44),
+    0 4px 10px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+  animation: card-enter var(--dur-card) var(--ease-cinematic) both;
+  transition:
+    transform var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
+}
+
+/* subtle sheen overlay */
+.dashboard-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.018), transparent 44%);
+  transition: opacity var(--dur-hover) var(--ease-out);
+}
+
+/* Hover elevation — card lifts subtly */
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 28px 52px rgba(0, 0, 0, 0.52),
+    0 6px 14px rgba(0, 0, 0, 0.36);
+}
+
+.dashboard-card:hover::after {
+  opacity: 1.4;
+}
+
+/* Pressed/active feel */
+.dashboard-card:active {
+  transform: translateY(0) scale(0.995);
+  transition-duration: 80ms;
+}
+
+.dashboard-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Stagger card entrance by grid position */
+.dashboard-grid--top .dashboard-card:nth-child(1)    { animation-delay: 0ms;   }
+.dashboard-grid--top .dashboard-card:nth-child(2)    { animation-delay: 60ms;  }
+.dashboard-grid--cards .dashboard-card:nth-child(1)  { animation-delay: 40ms;  }
+.dashboard-grid--cards .dashboard-card:nth-child(2)  { animation-delay: 100ms; }
+.dashboard-grid--cards .dashboard-card:nth-child(3)  { animation-delay: 160ms; }
+.dashboard-grid--bottom .dashboard-card:nth-child(1) { animation-delay: 80ms;  }
+.dashboard-grid--bottom .dashboard-card:nth-child(2) { animation-delay: 140ms; }
+
+/* height sizing driven from grid context */
+.dashboard-grid--top .dashboard-card {
+  height: 100%;
+}
+
+.dashboard-grid--cards .dashboard-card {
+  height: 100%;
+}
+
+.dashboard-grid--bottom .dashboard-card {
+  height: 100%;
+  padding: 24px 26px 22px;
+}
+
+/* Highlighted state — smooth transition when section changes */
+.dashboard-card--highlighted {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 28px 52px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 6px 14px rgba(0, 0, 0, 0.36);
+}
+
+/* ─── wcard: card content primitives ────────────────────────────────────── */
+
+/* eyebrow label */
+.wcard__eyebrow {
+  display: block;
+  margin: 0 0 14px;
+  color: #e8622a;
+  font-size: 10.5px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.26em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* eyebrow inside a flex top-row */
+.wcard__eyebrow--inline {
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* top row: eyebrow + badge */
+.wcard__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* red badge pill — "LEARN MORE" */
+.wcard__badge-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 0;
+  background: #c0391a;
+  color: #fff;
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.wcard__badge-btn:hover,
+.wcard__badge-btn:focus-visible {
+  opacity: 0.84;
+  transform: translateY(-1px);
+}
+
+/* card title */
+.wcard__title {
+  margin: 0;
+  color: #f5f4f2;
+  font-size: 26px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.06;
+}
+
+/* body copy */
+.wcard__desc {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.52;
+}
+
+/* horizontal rule before footer */
+.wcard__divider {
+  width: 100%;
+  height: 1px;
+  margin-top: auto;
+  margin-bottom: 0;
+  padding-top: 18px;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* footer row — always pushed to bottom of flex column */
+.wcard__footer {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+}
+
+.wcard__footer--split {
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* footer with button at the END (right side) */
+.wcard__footer--end {
+  justify-content: flex-end;
+}
+
+/* stat block (label + big value) */
+.wcard__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wcard__stat-label {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.wcard__stat-value {
+  color: #f5f4f2;
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+/* CTA button — pill shape, dark fill */
+.wcard__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 26px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.56);
+  background: linear-gradient(180deg, rgba(24, 26, 25, 0.97), rgba(6, 10, 10, 0.98));
+  box-shadow:
+    0 8px 18px rgba(100, 36, 14, 0.36),
+    inset 0 0 8px rgba(255, 255, 255, 0.12);
+  color: #f5f2ee;
+  font-family: var(--font-family);
+  font-size: 13.5px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+/* buttons that should NOT be uppercase (e.g. Calculate) */
+.wcard__btn--natural {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.wcard__btn:hover,
+.wcard__btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.84);
+  transform: translateY(-1px);
+}
+
+.wcard__btn:active {
+  transform: scale(0.97);
+}
+
+/* full-width btn variant */
+.wcard__btn--full {
+  width: 100%;
+}
+
+/* ─── Burnout Barometer specifics ────────────────────────────────────────── */
+.wcard__burnout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/*
+ * Each mood tile is a self-contained image (background + icon + label baked in).
+ * We do NOT crop it — aspect-ratio ensures proportional display.
+ * The 2px border ring uses CSS custom properties for per-mood accent color.
+ */
+.wcard__burnout-btn {
+  --burnout-accent: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  aspect-ratio: 14 / 16;  /* matches source asset proportions */
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+/* The image fills its tile completely — no cropping, no empty space */
+.wcard__burnout-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  border-radius: 12px;
+}
+
+/* Hover: subtle lift */
+.wcard__burnout-btn:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.wcard__burnout-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/*
+ * Active state: ring in the mood’s own accent color.
+ * Per-mood colors are set via inline CSS custom properties in the JSX.
+ * This avoids adding color to CSS that depends on the selected state.
+ */
+.wcard__burnout-btn--active {
+  border-color: var(--burnout-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--burnout-accent) 30%, transparent);
+}
+
+/* ─── Todo list ──────────────────────────────────────────────────────────── */
+.wcard__todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+
+.wcard__todo-item {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+
+.wcard__todo-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.wcard__todo-date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  color: #f7f7f6;
+  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+}
+
+.wcard__todo-content {
+  min-width: 0;
+}
+
+.wcard__todo-title {
+  color: #f7f7f6;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+
+.wcard__todo-meta {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wcard__todo-priority {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ─── Resource vault list ─────────────────────────────────────────────────── */
+.wcard__resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+
+.wcard__resource-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 12px;
+  line-height: 1.4;
+  word-break: break-all;
+  transition: color var(--dur-hover) var(--ease-out);
+}
+
+.wcard__resource-item:hover {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.wcard__resource-item svg {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.wcard__resource-url {
+  display: block;
+}
+
+/* ─── Legacy classes still used by DashboardPage.css ─────────────────────── */
+.dashboard-card__eyebrow {
+  display: inline-block;
+  margin: 0 0 14px;
+  color: #e8622a;
+  font-size: 10.5px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.26em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.dashboard-card__title {
+  margin: 0;
+  color: #f5f4f2;
+  font-size: 26px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.06;
+}
+
+.dashboard-card__description {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.52;
+}
+
+.dashboard-card__stat-display {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-card__stat-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.dashboard-card__stat-value {
+  display: block;
+  color: #f5f4f2;
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.05;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .dashboard-card {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .wcard__title,
+  .dashboard-card__title {
+    font-size: 22px;
+  }
+
+  .wcard__stat-value,
+  .dashboard-card__stat-value {
+    font-size: 24px;
+  }
+
+  .wcard__burnout-grid {
+    gap: 8px;
+  }
+
+  /* On small screens the aspect-ratio is enough—no override needed */
+  .wcard__todo-item {
+    grid-template-columns: 38px 1fr auto;
+  }
+
+  .wcard__todo-date {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+}
+
+/* ─── Small phone (480px) ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .dashboard-card {
+    padding: 18px 18px 18px;
+    border-radius: 14px;
+  }
+
+  .wcard__title {
+    font-size: 20px;
+  }
+
+  .wcard__desc {
+    font-size: 13px;
+  }
+
+  .wcard__stat-value {
+    font-size: 24px;
+  }
+
+  .wcard__btn {
+    height: 38px;
+    padding: 0 20px;
+    font-size: 12.5px;
+  }
+}

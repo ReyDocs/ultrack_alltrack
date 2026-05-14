@@ -1,0 +1,75 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap');
+@import './reset.css';
+@import './variables.css';
+@import './animations.css';
+
+body {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+  /* Smooth scrolling across all scroll containers */
+  scroll-behavior: smooth;
+}
+
+/* Eliminate 300ms tap delay on touch devices */
+button,
+a,
+[role="button"],
+[role="checkbox"],
+input[type="button"],
+input[type="submit"] {
+  touch-action: manipulation;
+}
+
+/* Global background with warm glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 38%,
+    var(--color-bg-glow-start) 0%,
+    var(--color-bg-glow-mid) 35%,
+    var(--color-bg-glow-end) 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(192, 83, 26, 0.4);
+  color: #fff;
+}

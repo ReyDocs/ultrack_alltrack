@@ -1,0 +1,43 @@
+.login-page__switch {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.login-page__switch a,
+.login-page__switch button {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  transition: opacity var(--transition-fast);
+}
+
+.login-page__switch a:hover,
+.login-page__switch button:hover {
+  opacity: 0.75;
+}
+
+.login-page__forgot {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.login-page__forgot:hover {
+  color: var(--color-text-primary);
+}
+
+.login-page__error {
+  font-size: 0.82rem;
+  color: rgba(231, 76, 60, 0.9);
+  text-align: center;
+  padding: var(--space-3);
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+  border-radius: var(--radius-md);
+}

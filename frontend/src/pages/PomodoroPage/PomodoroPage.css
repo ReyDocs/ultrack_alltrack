@@ -1,0 +1,266 @@
+.pomodoro-page {
+  /* full content area */
+}
+
+/* ─── Dark full-card ─────────────────────────────────────────────────────── */
+.pomodoro-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 80% 100%, rgba(88, 12, 10, 0.6), transparent 48%),
+    radial-gradient(ellipse at 20% 0%, rgba(70, 10, 8, 0.42), transparent 42%),
+    radial-gradient(ellipse at 50% 50%, rgba(50, 8, 6, 0.3), transparent 60%),
+    linear-gradient(180deg, #1a0b09 0%, #130705 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 48px 120px rgba(0, 0, 0, 0.28);
+  border-radius: 22px;
+  min-height: 530px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 42px;
+  padding: 48px 32px;
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+.pomodoro-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 28%);
+  pointer-events: none;
+}
+
+/* ─── Massive timer text — metallic gradient ──────────────────────────────── */
+.pomodoro-card__timer {
+  font-size: clamp(96px, 13vw, 156px);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d4d4d4 30%,
+    #a8a8a8 60%,
+    #888888 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 18px 36px rgba(0, 0, 0, 0.16);
+  user-select: none;
+}
+
+.pomodoro-card__settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.pomodoro-card__setting-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.pomodoro-card__setting-title {
+  display: inline-block;
+  min-width: 120px;
+}
+
+.pomodoro-card__setting-input {
+  width: 108px;
+  max-width: 100%;
+  min-width: 82px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.pomodoro-card__setting-input:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.24);
+}
+
+.pomodoro-card__setting-unit {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.95rem;
+}
+
+/* ─── Controls area ───────────────────────────────────────────────────────── */
+.pomodoro-card__controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.pomodoro-card__start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 52px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(30, 28, 27, 0.95), rgba(8, 6, 5, 0.98));
+  box-shadow:
+    0 8px 32px rgba(80, 16, 8, 0.32),
+    inset 0 0 14px rgba(255, 255, 255, 0.08);
+  color: #f5f2ee;
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
+}
+
+.pomodoro-card__start-btn:hover,
+.pomodoro-card__start-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.82);
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 38px rgba(80, 16, 8, 0.4),
+    inset 0 0 16px rgba(255, 255, 255, 0.1);
+}
+
+.pomodoro-card__start-btn:active {
+  transform: scale(0.98);
+  transition-duration: 80ms;
+}
+
+/* pill START/PAUSE button — matches reference dark pill */
+.pomodoro-card__start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 52px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(30, 28, 27, 0.95), rgba(8, 6, 5, 0.98));
+  box-shadow:
+    0 8px 24px rgba(80, 16, 8, 0.4),
+    inset 0 0 12px rgba(255, 255, 255, 0.08);
+  color: #f5f2ee;
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+}
+
+.pomodoro-card__start-btn:hover,
+.pomodoro-card__start-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.82);
+  transform: translateY(-2px);
+}
+
+.pomodoro-card__start-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .pomodoro-card {
+    min-height: 380px;
+    gap: 28px;
+    border-radius: 14px;
+  }
+
+  .pomodoro-card__settings {
+    width: min(420px, 100%);
+    padding: 16px 20px;
+  }
+
+  .pomodoro-card__setting-input {
+    width: 92px;
+  }
+
+  .pomodoro-card__start-btn {
+    height: 46px;
+    padding: 0 40px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pomodoro-card {
+    min-height: 300px;
+    padding: 32px 20px;
+  }
+
+  .pomodoro-card__settings {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 18px;
+  }
+
+  .pomodoro-card__setting-label {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .pomodoro-card {
+    min-height: 260px;
+    padding: 24px 16px;
+    gap: 20px;
+    border-radius: 12px;
+  }
+
+  .pomodoro-card__start-btn {
+    height: 42px;
+    padding: 0 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pomodoro-card {
+    min-height: 300px;
+    padding: 32px 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pomodoro-card {
+    min-height: 260px;
+    padding: 24px 16px;
+    gap: 20px;
+    border-radius: 12px;
+  }
+
+  .pomodoro-card__start-btn {
+    height: 42px;
+    padding: 0 32px;
+    font-size: 14px;
+  }
+}
+

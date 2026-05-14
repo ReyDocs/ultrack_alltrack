@@ -1,0 +1,109 @@
+.career-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  min-height: 600px;
+}
+
+/* ─── Left: hero copy ────────────────────────────────────────────────────── */
+.career-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 40px;
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+.career-copy__heading {
+  margin: 0;
+  color: #f5f2ee;
+  font-size: clamp(32px, 3.4vw, 46px);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.12;
+}
+
+.career-copy__heading--muted {
+  color: rgba(255, 255, 255, 0.52);
+  display: block;
+}
+
+.career-copy__body {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.7;
+  max-width: 440px;
+}
+
+/* ─── Right: Chatbase embed ──────────────────────────────────────────────── */
+.career-chatbase {
+  background: #1a1a1a;
+  border-radius: 18px;
+  overflow: hidden;
+  height: 660px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: card-enter var(--dur-page) var(--ease-cinematic) 60ms both;
+}
+
+.career-chatbase__iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  border-radius: 18px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .career-page {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .career-copy {
+    padding-top: 0;
+  }
+
+  .career-chatbase {
+    height: 520px;
+  }
+}
+
+@media (max-width: 767px) {
+  .career-copy__heading {
+    font-size: 26px;
+  }
+
+  .career-chatbase {
+    height: 440px;
+    border-radius: 14px;
+  }
+
+  .career-chatbase__iframe {
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .career-copy__heading {
+    font-size: 22px;
+  }
+
+  .career-copy__body {
+    font-size: 14px;
+  }
+
+  .career-chatbase {
+    height: 380px;
+    border-radius: 12px;
+  }
+
+  .career-chatbase__iframe {
+    border-radius: 12px;
+  }
+}
+
