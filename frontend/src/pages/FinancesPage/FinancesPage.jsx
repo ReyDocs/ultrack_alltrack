@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import PageShell from '../../components/PageShell/PageShell';
 import Button from '../../components/ui/Button/Button';
@@ -6,6 +6,8 @@ import Input from '../../components/ui/Input/Input';
 import burnoutGood from '../../assets/dashboard/burnout-good.png';
 import burnoutMedjo from '../../assets/dashboard/burnout-medjo.png';
 import burnoutEhh from '../../assets/dashboard/burnout-ehh.png';
+import { useAuth } from '../../context/AuthContext';
+import * as financesApi from '../../api/finances';
 import './FinancesPage.css';
 
 const financeStatuses = [
@@ -14,27 +16,83 @@ const financeStatuses = [
   { key: 'petsa', img: burnoutEhh,   label: 'PETSA DE PELIGRO' },
 ];
 
-const initialExpenses = [
-  { id: 1, expense: 'Pamasahe', type: 'Fare',   cost: 50 },
-  { id: 2, expense: 'Ate Lings', type: 'Food',   cost: 80 },
-  { id: 3, expense: 'Ukay',     type: 'Others', cost: 60 },
-];
-
 const types = ['Fare', 'Food', 'Others', 'Housing', 'Transport'];
 const MAX_BALANCE_DIGITS = 10;
 const MAX_COST_VALUE = 99999;
 
+// Module-level cache to provide instant population on re-navigation
+let cachedTransactions = null;
+let cachedBalance = null;
+
 export default function FinancesPage() {
+  const { user, loading: authLoading } = useAuth();
   const [financeStatus, setFinanceStatus] = useState('mmhm');
-  const [expenses, setExpenses] = useState(initialExpenses);
-  const [totalBalance, setTotalBalance] = useState(2851.0);
+  const [expenses, setExpenses] = useState(cachedTransactions || []);
+  const [totalBalance, setTotalBalance] = useState(cachedBalance);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
-  const [balanceInput, setBalanceInput] = useState(totalBalance.toFixed(2));
+  const [balanceInput, setBalanceInput] = useState(cachedBalance?.toFixed(2) || '0.00');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addExpense, setAddExpense] = useState({ expense: '', type: types[0], cost: '' });
   const [editingExpenseId, setEditingExpenseId] = useState(null);
   const [editExpense, setEditExpense] = useState({ expense: '', type: types[0], cost: '' });
   const [expenseError, setExpenseError] = useState('');
+  const [isSubmittingBalance, setIsSubmittingBalance] = useState(false);
+  const [isSubmittingExpense, setIsSubmittingExpense] = useState(false);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(!cachedBalance);
+  const latestBalanceFetchRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    let fetchId = {};
+    latestBalanceFetchRef.current = fetchId;
+
+    async function loadData() {
+      // Wait for auth to be fully ready before fetching
+      if (!user || authLoading) {
+        return;
+      }
+
+      try {
+        const [txns, balance] = await Promise.all([
+          financesApi.fetchTransactions(),
+          financesApi.fetchBalance(),
+        ]);
+
+        // Only update if this is the latest fetch and component is still mounted
+        if (!active || latestBalanceFetchRef.current !== fetchId) return;
+
+        const formattedExpenses = (txns || []).map((txn) => ({
+          id: txn.transaction_id,
+          expense: txn.expense_desc || '',
+          type: txn.type,
+          cost: parseFloat(txn.amount),
+        }));
+
+        const bal = parseFloat(balance.total_balance);
+        const finalBalance = Number.isFinite(bal) ? bal : 0;
+
+        setExpenses(formattedExpenses);
+        setTotalBalance(finalBalance);
+        setBalanceInput(finalBalance.toFixed(2));
+        setIsLoadingBalance(false);
+
+        // Update caches
+        cachedTransactions = formattedExpenses;
+        cachedBalance = finalBalance;
+      } catch (error) {
+        console.error('Failed to load finances:', error);
+        if (active && latestBalanceFetchRef.current === fetchId) {
+          setIsLoadingBalance(false);
+        }
+      }
+    }
+
+    loadData();
+
+    return () => {
+      active = false;
+    };
+  }, [user, authLoading]);
 
   const sanitizeNumericValue = (value, maxIntegerDigits, maxFractionDigits = 2) => {
     const cleaned = value.replace(/[^0-9.]/g, '');
@@ -47,17 +105,41 @@ export default function FinancesPage() {
     return limitedFraction ? `${limitedInteger}.${limitedFraction}` : limitedInteger;
   };
 
-  const handleBalanceSave = () => {
+  const handleBalanceSave = async () => {
     const parsed = parseFloat(balanceInput.replace(/,/g, ''));
     if (!Number.isFinite(parsed) || parsed < 0) {
-      setBalanceInput(totalBalance.toFixed(2));
+      setBalanceInput(totalBalance?.toFixed(2) || '0.00');
       setIsEditingBalance(false);
       return;
     }
-    const limitedBalance = Math.min(parsed, Number('9'.repeat(MAX_BALANCE_DIGITS)));
-    setTotalBalance(limitedBalance);
-    setBalanceInput(limitedBalance.toFixed(2));
+    // Calculate required base_balance (Total + Expenses)
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.cost, 0);
+    const targetBaseBalance = parsed + totalExpenses;
+
+    // Store previous balance for rollback
+    const previousBalance = totalBalance;
+
+    // Optimistic update: update local state immediately
+    setTotalBalance(parsed);
+    setBalanceInput(parsed.toFixed(2));
     setIsEditingBalance(false);
+    
+    // Sync cache
+    cachedBalance = parsed;
+
+    setIsSubmittingBalance(true);
+    try {
+      // Persist to backend - we update the base_balance
+      await financesApi.updateBalance(targetBaseBalance);
+      // Backend update succeeded, local state remains as updated
+    } catch (error) {
+      console.error('Failed to save balance:', error);
+      // On error, rollback to previous value
+      setTotalBalance(previousBalance);
+      setBalanceInput(previousBalance?.toFixed(2) || '0.00');
+    } finally {
+      setIsSubmittingBalance(false);
+    }
   };
 
   const handleBalanceCancel = () => {
@@ -89,7 +171,7 @@ export default function FinancesPage() {
     setAddExpense((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAddExpense = (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
     const cost = parseFloat(addExpense.cost);
     if (!addExpense.expense.trim() || !addExpense.type.trim() || !Number.isFinite(cost) || cost <= 0 || cost > MAX_COST_VALUE) {
@@ -97,16 +179,44 @@ export default function FinancesPage() {
       return;
     }
 
-    const nextExpense = {
-      id: Date.now(),
-      expense: addExpense.expense.trim(),
-      type: addExpense.type,
-      cost,
-    };
+    if (isSubmittingExpense) {
+      return;
+    }
 
-    setExpenses((prev) => [...prev, nextExpense]);
-    setAddExpense({ expense: '', type: types[0], cost: '' });
-    setIsAddOpen(false);
+    setIsSubmittingExpense(true);
+    try {
+      const createdTxn = await financesApi.createTransaction({
+        expense_desc: addExpense.expense.trim(),
+        type: addExpense.type,
+        amount: cost,
+      });
+
+      const nextExpense = {
+        id: createdTxn.transaction_id,
+        expense: createdTxn.expense_desc || '',
+        type: createdTxn.type,
+        cost: parseFloat(createdTxn.amount),
+      };
+
+      setExpenses((prev) => {
+        const updated = [nextExpense, ...prev];
+        cachedTransactions = updated; // Sync cache
+        return updated;
+      });
+      setTotalBalance((prev) => {
+        const next = (prev ?? 0) - nextExpense.cost;
+        cachedBalance = next; // Sync cache
+        return next;
+      });
+      setAddExpense({ expense: '', type: types[0], cost: '' });
+      setIsAddOpen(false);
+      setExpenseError('');
+    } catch (error) {
+      console.error('Failed to create expense:', error);
+      setExpenseError('Unable to save expense right now. Please try again.');
+    } finally {
+      setIsSubmittingExpense(false);
+    }
   };
 
   const startEditExpense = (row) => {
@@ -121,7 +231,7 @@ export default function FinancesPage() {
     setExpenseError('');
   };
 
-  const saveEditExpense = (e) => {
+  const saveEditExpense = async (e) => {
     e.preventDefault();
     const cost = parseFloat(editExpense.cost);
     if (!editExpense.expense.trim() || !editExpense.type.trim() || !Number.isFinite(cost) || cost <= 0 || cost > MAX_COST_VALUE) {
@@ -129,22 +239,72 @@ export default function FinancesPage() {
       return;
     }
 
-    setExpenses((prev) =>
-      prev.map((expense) =>
-        expense.id === editingExpenseId
-          ? { ...expense, expense: editExpense.expense.trim(), type: editExpense.type, cost }
-          : expense
-      )
-    );
-    setEditingExpenseId(null);
-    setExpenseError('');
+    if (isSubmittingExpense) {
+      return;
+    }
+
+    setIsSubmittingExpense(true);
+    try {
+      const updatedTxn = await financesApi.updateTransaction(editingExpenseId, {
+        expense_desc: editExpense.expense.trim(),
+        type: editExpense.type,
+        amount: cost,
+      });
+
+      setExpenses((prev) => {
+        const oldExpense = prev.find((e) => e.id === editingExpenseId);
+        const diff = (oldExpense ? oldExpense.cost : 0) - parseFloat(updatedTxn.amount);
+        
+        setTotalBalance((curr) => {
+          const next = (curr ?? 0) + diff;
+          cachedBalance = next; // Sync cache
+          return next;
+        });
+        
+        const updated = prev.map((expense) =>
+          expense.id === editingExpenseId
+            ? {
+                id: updatedTxn.transaction_id,
+                expense: updatedTxn.expense_desc || '',
+                type: updatedTxn.type,
+                cost: parseFloat(updatedTxn.amount),
+              }
+            : expense
+        );
+        cachedTransactions = updated; // Sync cache
+        return updated;
+      });
+      setEditingExpenseId(null);
+      setExpenseError('');
+    } catch (error) {
+      console.error('Failed to update expense:', error);
+      setExpenseError('Unable to save expense right now. Please try again.');
+    } finally {
+      setIsSubmittingExpense(false);
+    }
   };
 
-  const deleteExpense = (id) => {
-    setExpenses((prev) => prev.filter((item) => item.id !== id));
+  const deleteExpense = async (id) => {
+    try {
+      const target = expenses.find((e) => e.id === id);
+      const amount = target ? target.cost : 0;
+      await financesApi.deleteTransaction(id);
+      setExpenses((prev) => {
+        const updated = prev.filter((item) => item.id !== id);
+        cachedTransactions = updated; // Sync cache
+        return updated;
+      });
+      setTotalBalance((prev) => {
+        const next = (prev ?? 0) + amount;
+        cachedBalance = next; // Sync cache
+        return next;
+      });
+    } catch (error) {
+      console.error('Failed to delete expense:', error);
+    }
   };
 
-  const formattedBalanceStr = totalBalance.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+  const formattedBalanceStr = (totalBalance ?? 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
   const balanceLength = formattedBalanceStr.length;
   const lengthOffset = Math.max(0, balanceLength - 8);
   const minFontSize = Math.max(28, 52 - (lengthOffset * 3));
@@ -195,14 +355,14 @@ export default function FinancesPage() {
                   </div>
                 ) : (
                   <span 
-                    className="finances-balance__amount"
+                    className={`finances-balance__amount${isLoadingBalance ? ' finances-balance__amount--loading' : ''}`}
                     style={{ 
                       fontSize: `clamp(${minFontSize}px, ${vwSize}vw, ${maxFontSize}px)`,
                       transition: 'font-size 0.3s ease-out',
                       willChange: 'font-size'
                     }}
                   >
-                    {formattedBalanceStr}
+                    {isLoadingBalance ? '' : formattedBalanceStr}
                   </span>
                 )}
               </div>

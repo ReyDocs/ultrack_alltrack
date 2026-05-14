@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../config/supabase';
 import * as authApi from '../api/auth';
+import * as usersApi from '../api/users';
 
 const ACCESS_TOKEN_KEY = 'ultrack_access_token';
 const REFRESH_TOKEN_KEY = 'ultrack_refresh_token';
@@ -156,10 +157,30 @@ export function AuthProvider({ children }) {
   }, [clearSession]);
 
   const updateProfile = useCallback(async (updates) => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      ...updates,
-    }));
+    try {
+      const profile = await usersApi.updateMe({
+        username: updates.name,
+      });
+      setUser(buildUser(profile));
+      return profile;
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  }, []);
+
+  const uploadAvatar = useCallback(async (file) => {
+    try {
+      const data = await usersApi.uploadAvatar(file);
+      // After upload, we should refresh the user profile to get the new avatarUrl
+      const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+      const profile = await authApi.fetchMe(accessToken);
+      setUser(buildUser(profile));
+      return data.avatar_url;
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+      throw error;
+    }
   }, []);
 
   return (
@@ -172,6 +193,7 @@ export function AuthProvider({ children }) {
         googleLogin,
         logout,
         updateProfile,
+        uploadAvatar,
       }}
     >
       {children}

@@ -1,26 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import PageShell from '../../components/PageShell/PageShell';
 import DashboardCard from '../../components/DashboardCard/DashboardCard';
 import Button from '../../components/ui/Button/Button';
 import Input from '../../components/ui/Input/Input';
+import { useAuth } from '../../context/AuthContext';
+import * as resourcesApi from '../../api/resources';
 import './LinksPage.css';
-
-const initialLinks = [
-  { id: 1, name: 'Wiley study paper', url: 'https://faseb.onlinelibrary.wiley.com/doi/abs/10.1096/fj.00-0361com' },
-  { id: 2, name: 'ScienceDirect article', url: 'https://www.sciencedirect.com/science/article/pii/S0031320301000668' },
-];
 
 const MAX_LINK_NAME_LENGTH = 60;
 const MAX_URL_LENGTH = 200;
 
+// Module-level cache to provide instant population on re-navigation
+let cachedLinks = null;
+
 export default function LinksPage() {
-  const [links, setLinks] = useState(initialLinks);
+  const { user, loading: authLoading } = useAuth();
+  // Initialize with cache if available to prevent pop-in
+  const [links, setLinks] = useState(cachedLinks || []);
+  const [isLoading, setIsLoading] = useState(!cachedLinks);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [linkName, setLinkName] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [linkError, setLinkError] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadResources() {
+      if (!user || authLoading) return;
+
+      try {
+        const data = await resourcesApi.fetchResources();
+        if (!active) return;
+        
+        const formatted = data.map((r) => ({
+          id: r.resource_id,
+          name: r.resource_title || 'Untitled',
+          url: r.url_links,
+        }));
+
+        setLinks(formatted);
+        cachedLinks = formatted; // Update cache for next navigation
+      } catch (error) {
+        console.error('Failed to load resources:', error);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    }
+
+    loadResources();
+
+    return () => {
+      active = false;
+    };
+  }, [user, authLoading]);
 
   const openAddLink = () => {
     setIsAddOpen(true);
@@ -45,7 +81,7 @@ export default function LinksPage() {
     }
   };
 
-  const handleAddLink = (event) => {
+  const handleAddLink = async (event) => {
     event.preventDefault();
     const trimmedName = linkName.trim();
     const trimmedUrl = linkUrl.trim();
@@ -55,17 +91,36 @@ export default function LinksPage() {
       return;
     }
 
-    const nextLink = {
-      id: Date.now(),
-      name: trimmedName.slice(0, MAX_LINK_NAME_LENGTH),
-      url: trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`,
-    };
+    if (isSubmitting) return;
 
-    setLinks((prev) => [nextLink, ...prev]);
-    setLinkName('');
-    setLinkUrl('');
-    setLinkError('');
-    setIsAddOpen(false);
+    setIsSubmitting(true);
+    try {
+      const created = await resourcesApi.createResource({
+        url_links: trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`,
+        resource_title: trimmedName.slice(0, MAX_LINK_NAME_LENGTH),
+      });
+
+      const nextLink = {
+        id: created.resource_id,
+        name: created.resource_title || 'Untitled',
+        url: created.url_links,
+      };
+
+      setLinks((prev) => {
+        const updated = [nextLink, ...prev];
+        cachedLinks = updated; // Sync cache
+        return updated;
+      });
+      setLinkName('');
+      setLinkUrl('');
+      setLinkError('');
+      setIsAddOpen(false);
+    } catch (error) {
+      console.error('Failed to create resource:', error);
+      setLinkError('Unable to save link right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyLink = async (id, url) => {
@@ -80,8 +135,17 @@ export default function LinksPage() {
     }
   };
 
-  const deleteLink = (id) => {
-    setLinks((prev) => prev.filter((item) => item.id !== id));
+  const deleteLink = async (id) => {
+    try {
+      await resourcesApi.deleteResource(id);
+      setLinks((prev) => {
+        const updated = prev.filter((item) => item.id !== id);
+        cachedLinks = updated; // Sync cache
+        return updated;
+      });
+    } catch (error) {
+      console.error('Failed to delete resource:', error);
+    }
   };
 
   return (
@@ -155,7 +219,9 @@ export default function LinksPage() {
                   <Button type="button" variant="ghost" onClick={cancelAddLink}>
                     Cancel
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Saving...' : 'Save'}
+                  </Button>
                 </div>
                 {linkError && <p className="links-card__error">{linkError}</p>}
               </form>
