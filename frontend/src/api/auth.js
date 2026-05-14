@@ -1,3 +1,4 @@
+import { supabase } from "../config/supabase";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
 
 async function parseJsonResponse(response) {
@@ -60,14 +61,12 @@ export async function signup(credentials) {
   });
 }
 
-import { supabase } from "../lib/supabase";
-
 export async function googleLogin() {
   await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider: 'google',
     options: {
-      redirectTo: "https://ultrackalltrack.vercel.app"
-    }
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
   });
 }
 
