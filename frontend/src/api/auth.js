@@ -60,8 +60,11 @@ export async function signup(credentials) {
   });
 }
 
-export async function googleLogin() {
-  return request('/api/v1/auth/google');
+export function googleLogin() {
+  const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '');
+    
+  window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
 }
 
 export async function logout() {
