@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from app.db.supabase import supabase_admin
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate
 
 TABLE = "users"
 
@@ -37,9 +37,8 @@ def create_user_with_id(user_id: str, data: UserCreate) -> dict:
     return result.data[0]
 
 
-def update_user(user_id: str, data: UserUpdate) -> dict:
-    payload = data.model_dump(exclude_none=True)
-    result = supabase_admin.table(TABLE).update(payload).eq("id", user_id).execute()
+def update_user(user_id: str, data: dict) -> dict:
+    result = supabase_admin.table(TABLE).update(data).eq("id", user_id).execute()
     return result.data[0]
 
 
@@ -68,6 +67,6 @@ def upload_avatar(user_id: str, file_content: bytes, filename: str, content_type
     public_url = supabase_admin.storage.from_(bucket_name).get_public_url(file_path)
 
     # Update user record in DB
-    update_user(user_id, UserUpdate(avatar_url=public_url))
+    update_user(user_id, {"avatar_url": public_url})
 
     return public_url

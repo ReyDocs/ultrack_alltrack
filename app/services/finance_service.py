@@ -31,10 +31,8 @@ def get_transaction(transaction_id: int, user_id: str) -> dict | None:
 
 def create_transaction(user_id: str, data: dict) -> dict:
     """Insert a new transaction."""
-    payload = data.model_dump()
-    payload["user_id"] = user_id
-    payload["amount"] = float(payload["amount"])
-    response = supabase_admin.table(TABLE).insert(payload).execute()
+    data["user_id"] = user_id
+    response = supabase_admin.table(TABLE).insert(data).execute()
     return response.data[0]
 
 
