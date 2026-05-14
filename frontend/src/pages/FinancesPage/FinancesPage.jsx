@@ -28,9 +28,10 @@ export default function FinancesPage() {
   const { user, loading: authLoading } = useAuth();
   const [financeStatus, setFinanceStatus] = useState('mmhm');
   const [expenses, setExpenses] = useState(cachedTransactions || []);
-  const [totalBalance, setTotalBalance] = useState(cachedBalance);
+  const [totalBalance, setTotalBalance] = useState(cachedBalance !== null ? cachedBalance : 0);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(cachedBalance === null);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
-  const [balanceInput, setBalanceInput] = useState(cachedBalance?.toFixed(2) || '0.00');
+  const [balanceInput, setBalanceInput] = useState(cachedBalance !== null ? cachedBalance.toFixed(2) : '0.00');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addExpense, setAddExpense] = useState({ expense: '', type: types[0], cost: '' });
   const [editingExpenseId, setEditingExpenseId] = useState(null);
@@ -38,7 +39,6 @@ export default function FinancesPage() {
   const [expenseError, setExpenseError] = useState('');
   const [isSubmittingBalance, setIsSubmittingBalance] = useState(false);
   const [isSubmittingExpense, setIsSubmittingExpense] = useState(false);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(!cachedBalance);
   const latestBalanceFetchRef = useRef(null);
 
   useEffect(() => {
