@@ -2,15 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import router
 from app.core.config import settings
-
+from fastapi.responses import JSONResponse
+import traceback
 app = FastAPI(
     title="ULTRACK API",
     description="Backend for ULTRACK — the student productivity platform.",
     version="1.0.0",
 )
 
-from fastapi.responses import JSONResponse
-import traceback
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     return JSONResponse(
@@ -26,7 +25,6 @@ app.add_middleware(
         settings.frontend_url,
         "https://www.ultrack.site",
         "https://www.ultrack.site/",
-        "http://localhost:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],

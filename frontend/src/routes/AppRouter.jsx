@@ -10,10 +10,7 @@ import LinksPage from '../pages/LinksPage/LinksPage';
 import GradesPage from '../pages/GradesPage/GradesPage';
 import PomodoroPage from '../pages/PomodoroPage/PomodoroPage';
 import CareerPage from '../pages/CareerPage/CareerPage';
-import TermsPage from '../pages/TermsPage/TermsPage';
-import PrivacyPage from '../pages/PrivacyPage/PrivacyPage';
-import PageTransition from '../components/PageTransition/PageTransition';
-import { useAuth } from '../context/AuthContext';
+import AuthCallbackPage from '../pages/AuthCallbackPage/AuthCallbackPage';
 
 /** Protected Route component */
 function ProtectedRoute({ children }) {
@@ -50,7 +47,7 @@ function AnimatedRoutes() {
         <Route path="/lock-in" element={<ProtectedRoute><PomodoroPage /></ProtectedRoute>} />
         <Route path="/career" element={<ProtectedRoute><CareerPage /></ProtectedRoute>} />
         <Route path="/terms" element={<TermsPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </PageTransition>
