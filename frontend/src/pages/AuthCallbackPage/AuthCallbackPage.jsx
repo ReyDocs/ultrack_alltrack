@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../config/supabase';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
   const [debugMsg, setDebugMsg] = useState(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Explicitly get the session to ensure OAuth callback is processed
+        // Check for error in URL
+        if (window.location.search.includes('error=')) {
+          console.error('OAuth error in URL');
+          navigate('/login', { replace: true });
+          return;
+        }
+
+        // Get the session from Supabase
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -22,32 +26,28 @@ export default function AuthCallbackPage() {
         }
 
         if (session?.user) {
-          // Session is available, wait for AuthContext to process it
-          const checkUser = () => {
-            if (user) {
-              navigate('/dashboard', { replace: true });
-            } else {
-              setTimeout(checkUser, 100);
-            }
-          };
-          checkUser();
+          console.log('Session found, redirecting to dashboard');
+          // Clear the URL parameters
+          window.history.replaceState({}, document.title, window.location.pathname);
+          navigate('/dashboard', { replace: true });
         } else {
-          // No session, redirect to login
+          console.log('No session found, redirecting to login');
           navigate('/login', { replace: true });
         }
       } catch (err) {
         console.error('Callback processing error:', err);
-        navigate('/login', { replace: true });
+        setDebugMsg(`Error: ${err.message}`);
+        setTimeout(() => navigate('/login', { replace: true }), 3000);
       }
     };
 
     handleCallback();
-  }, [user, navigate]);
+  }, [navigate]);
 
   if (debugMsg) {
     return (
       <div style={{ padding: '50px', textAlign: 'center', color: 'white', background: '#0F172A', height: '100vh' }}>
-        <h2>Authentication Debug</h2>
+        <h2>Authentication Error</h2>
         <p style={{ color: '#F87171' }}>{debugMsg}</p>
         <button onClick={() => navigate('/login')} style={{ marginTop: '20px', padding: '10px 20px' }}>Return to Login</button>
       </div>
@@ -56,8 +56,8 @@ export default function AuthCallbackPage() {
 
   return (
     <div style={{ padding: '50px', textAlign: 'center', color: 'white', background: '#0F172A', height: '100vh' }}>
-      <h2>Processing authentication...</h2>
-      <p>Please wait while we complete your login.</p>
+      <h2>Completing authentication...</h2>
+      <p>Please wait while we finish logging you in.</p>
     </div>
   );
 }
