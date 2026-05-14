@@ -61,7 +61,6 @@ export async function signup(credentials) {
   });
 }
 
-
 export async function googleLogin() {
   await supabase.auth.signInWithOAuth({
     provider: 'google',

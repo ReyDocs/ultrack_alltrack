@@ -26,6 +26,7 @@ app.add_middleware(
         settings.frontend_url,
         "https://www.ultrack.site",
         "https://www.ultrack.site/",
+        "http://localhost:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
