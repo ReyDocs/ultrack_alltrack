@@ -20,7 +20,8 @@ def create_task(
 ):
     """Create a new task for the authenticated user."""
     data = body.model_dump()
-    return task_service.create_task(current_user["user_id"], body)
+    data["priority"] = data["priority"].value if hasattr(data["priority"], "value") else data["priority"]
+    return task_service.create_task(current_user["user_id"], data)
 
 
 @router.get("/{task_id}", response_model=TaskResponse, summary="Get a single task")
@@ -42,8 +43,10 @@ def update_task(
     task = task_service.get_task(task_id, current_user["user_id"])
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
-    data = body.model_dump(exclude_none=True)
-    return task_service.update_task(task_id, current_user["user_id"], body)
+    data = body.model_dump(exclude_unset=True)
+    if "priority" in data and hasattr(data["priority"], "value"):
+        data["priority"] = data["priority"].value
+    return task_service.update_task(task_id, current_user["user_id"], data)
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a task")

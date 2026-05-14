@@ -31,22 +31,19 @@ def get_resource(resource_id: str, user_id: str) -> dict | None:
 
 def create_resource(user_id: str, data: dict) -> dict:
     """Insert a new resource entry."""
-    payload = data.model_dump()
-    payload["user_id"] = user_id
-    payload["created_at"] = datetime.now(timezone.utc).isoformat()
-
-    payload["url_links"] = str(payload["url_links"])
-    response = supabase_admin.table(TABLE).insert(payload).execute()
+    data["user_id"] = user_id
+    data["created_at"] = datetime.now(timezone.utc).isoformat()
+    data["url_links"] = str(data["url_links"])
+    response = supabase_admin.table(TABLE).insert(data).execute()
     return response.data[0]
 
 
 def update_resource(resource_id: str, user_id: str, data: dict) -> dict:
-    payload = data.model_dump(exclude_none=True)
-    if "url_links" in payload:
-        payload["url_links"] = str(payload["url_links"])
+    if "url_links" in data:
+        data["url_links"] = str(data["url_links"])
     result = (
         supabase_admin.table(TABLE)
-        .update(payload)
+        .update(data)
         .eq("resource_id", resource_id)
         .eq("user_id", user_id)
         .execute()
