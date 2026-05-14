@@ -120,7 +120,7 @@ export function AuthProvider({ children }) {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://ultrackalltrack.vercel.app',
+        redirectTo: 'https://ultrackalltrack.vercel.app/auth/callback',
       },
     });
   }, []);
