@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../config/supabase';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -9,23 +10,38 @@ export default function AuthCallbackPage() {
   const [debugMsg, setDebugMsg] = useState(null);
 
   useEffect(() => {
-    if (window.location.search.includes('error=')) {
-      navigate('/login', { replace: true });
-      return;
-    }
+    const handleCallback = async () => {
+      try {
+        // Explicitly get the session to ensure OAuth callback is processed
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth callback error:', error);
+          navigate('/login', { replace: true });
+          return;
+        }
 
-    if (user) {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
-
-    const fallbackTimer = setTimeout(() => {
-      if (!user) {
-        setDebugMsg("Callback timeout: User profile failed to hydrate. Check backend logs for /api/v1/users/me 500 errors.");
+        if (session?.user) {
+          // Session is available, wait for AuthContext to process it
+          const checkUser = () => {
+            if (user) {
+              navigate('/dashboard', { replace: true });
+            } else {
+              setTimeout(checkUser, 100);
+            }
+          };
+          checkUser();
+        } else {
+          // No session, redirect to login
+          navigate('/login', { replace: true });
+        }
+      } catch (err) {
+        console.error('Callback processing error:', err);
+        navigate('/login', { replace: true });
       }
-    }, 5000);
+    };
 
-    return () => clearTimeout(fallbackTimer);
+    handleCallback();
   }, [user, navigate]);
 
   if (debugMsg) {
@@ -38,5 +54,10 @@ export default function AuthCallbackPage() {
     );
   }
 
-  return null;
+  return (
+    <div style={{ padding: '50px', textAlign: 'center', color: 'white', background: '#0F172A', height: '100vh' }}>
+      <h2>Processing authentication...</h2>
+      <p>Please wait while we complete your login.</p>
+    </div>
+  );
 }
