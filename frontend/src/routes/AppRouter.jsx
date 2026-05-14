@@ -10,9 +10,11 @@ import LinksPage from '../pages/LinksPage/LinksPage';
 import GradesPage from '../pages/GradesPage/GradesPage';
 import PomodoroPage from '../pages/PomodoroPage/PomodoroPage';
 import CareerPage from '../pages/CareerPage/CareerPage';
+import TermsPage from '../pages/TermsPage/TermsPage';
+import PrivacyPage from '../pages/PrivacyPage/PrivacyPage';
 import AuthCallbackPage from '../pages/AuthCallbackPage/AuthCallbackPage';
-
-/** Protected Route component */
+import PageTransition from '../components/PageTransition/PageTransition';
+import { useAuth } from '../context/AuthContext';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
