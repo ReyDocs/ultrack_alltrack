@@ -3,3 +3,4 @@ venv/
 __pycache__/
 *.pyc
 project_summary.md
+session_summary.md
