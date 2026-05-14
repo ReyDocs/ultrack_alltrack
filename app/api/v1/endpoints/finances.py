@@ -54,7 +54,11 @@ def update_transaction(
     txn = finance_service.get_transaction(transaction_id, current_user["user_id"])
     if not txn:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
-    payload = body.model_dump(exclude_none=True)
+    payload = body.model_dump(exclude_unset=True)
+    if "type" in payload and hasattr(payload["type"], "value"):
+        payload["type"] = payload["type"].value
+    if "amount" in payload:
+        payload["amount"] = float(payload["amount"])
     return finance_service.update_transaction(transaction_id, current_user["user_id"], payload)
 
 

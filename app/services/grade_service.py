@@ -31,10 +31,8 @@ def get_course(course_id: str, user_id: str) -> dict | None:
 
 def create_course(user_id: str, data: dict) -> dict:
     """Insert a new course."""
-    payload = data.model_dump()
-    payload["user_id"] = user_id
-    payload["course_grade"] = float(payload["course_grade"])
-    response = supabase_admin.table(TABLE).insert(payload).execute() 
+    data["user_id"] = user_id
+    response = supabase_admin.table(TABLE).insert(data).execute()
     return response.data[0]
 
 

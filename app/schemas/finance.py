@@ -15,13 +15,18 @@ class TransactionType(str, Enum):
 class TransactionCreate(BaseModel):
     expense_desc: Optional[str] = None   # e.g. "Ate Lings", "Grab"
     type: TransactionType                 # enforced dropdown values
-    amount: Decimal                       # positive = income, negative = expense
+    amount: Decimal                       # positive expense amount (subtracted from base_balance)
 
 
 class TransactionUpdate(BaseModel):
     expense_desc: Optional[str] = None
     type: Optional[TransactionType] = None
     amount: Optional[Decimal] = None
+    model_config = {
+        "json_schema_extra": {
+            "example": {}
+        }
+    }
 
 
 class TransactionResponse(BaseModel):

@@ -18,6 +18,11 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
     priority: Optional[TaskPriority] = None
+    model_config = {
+        "json_schema_extra": {
+            "example": {}
+        }
+    }
 
 
 class TaskResponse(BaseModel):
