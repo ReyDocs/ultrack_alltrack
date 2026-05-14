@@ -29,8 +29,10 @@ def create_transaction(
     current_user: dict = Depends(get_current_user),
 ):
     """Log a new transaction for the authenticated user."""
-    data = body.model_dump()
-    return finance_service.create_transaction(current_user["user_id"], body)
+    payload = body.model_dump()
+    payload["type"] = payload["type"].value if hasattr(payload["type"], "value") else payload["type"]
+    payload["amount"] = float(payload["amount"])
+    return finance_service.create_transaction(current_user["user_id"], payload)
 
 
 @router.get("/{transaction_id}", response_model=TransactionResponse, summary="Get a transaction")

@@ -31,9 +31,7 @@ def get_task(task_id: str, user_id: str) -> dict | None:
 def create_task(user_id: str, data: TaskCreate) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     payload = data.model_dump()
-    # Convert datetime fields to ISO strings so they are JSON serializable
-    if payload.get("due_date"):
-        payload["due_date"] = payload["due_date"].isoformat()
+    payload["priority"] = payload["priority"].value if hasattr(payload["priority"], "value") else payload["priority"]
     payload.update({"user_id": user_id, "created_at": now, "updated_at": now})
     result = supabase_admin.table(TABLE).insert(payload).execute()
     return result.data[0]
@@ -41,8 +39,8 @@ def create_task(user_id: str, data: TaskCreate) -> dict:
 
 def update_task(task_id: str, user_id: str, data: TaskUpdate) -> dict:
     payload = data.model_dump(exclude_none=True)
-    if payload.get("due_date"):
-        payload["due_date"] = payload["due_date"].isoformat()
+    if "priority" in payload and hasattr(payload["priority"], "value"):
+        payload["priority"] = payload["priority"].value
     payload["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = (
         supabase_admin.table(TABLE)
