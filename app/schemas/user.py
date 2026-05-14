@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     email_verified: bool = False
     avatar_url: Optional[str] = None
     username: Optional[str] = None
+    base_balance: Optional[Decimal] = 0
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None

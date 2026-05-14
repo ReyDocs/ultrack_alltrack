@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import Logo from '../../components/ui/Logo/Logo';
@@ -34,7 +34,14 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
-  const { login } = useAuth();
+  const { user, login, googleLogin } = useAuth();
+
+  // Global Auth Policy: Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,15 +61,19 @@ export default function LoginPage() {
     try {
       await login({ email: form.email, password: form.password });
       navigate('/dashboard');
-    } catch {
-      setServerError('Invalid email or password. Please try again.');
+    } catch (error) {
+      setServerError(error.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Trigger Google OAuth flow
+  const handleGoogleSignIn = async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      setServerError('Google login failed. Please try again.');
+    }
   };
 
   return (

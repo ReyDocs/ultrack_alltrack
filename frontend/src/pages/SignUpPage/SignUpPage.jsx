@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import Logo from '../../components/ui/Logo/Logo';
@@ -36,7 +36,14 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
-  const { signup } = useAuth();
+  const { user, signup, googleLogin } = useAuth();
+
+  // Global Auth Policy: Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,15 +63,19 @@ export default function SignUpPage() {
     try {
       await signup({ email: form.email, password: form.password });
       navigate('/dashboard');
-    } catch {
-      setServerError('Something went wrong. Please try again.');
+    } catch (error) {
+      setServerError(error.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignUp = () => {
-    // TODO: Trigger Google OAuth flow
+  const handleGoogleSignUp = async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      setServerError('Google login failed. Please try again.');
+    }
   };
 
   return (

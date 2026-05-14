@@ -253,16 +253,6 @@
     font-size: 13.5px;
   }
 }
-  .links-card {
-    padding: 24px 20px 32px;
-    min-height: auto;
-    border-radius: 14px;
-  }
-
-  .links-card__title {
-    font-size: 22px;
-  }
-}
 
 @media (max-width: 480px) {
   .links-card {

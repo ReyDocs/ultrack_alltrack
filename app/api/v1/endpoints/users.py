@@ -10,26 +10,37 @@ router = APIRouter()
 @router.get("/me", response_model=UserResponse, summary="Get current user profile")
 def get_me(current_user: dict = Depends(get_current_user)):
     """Return the authenticated user's profile. Syncs with Supabase Auth if needed."""
-    user = user_service.get_user_by_id(current_user["user_id"])
-    
-    if not user:
-        # Strategy A: Auto-create user record on first visit/login
-        # Pull avatar from metadata if it exists (Google Auth)
-        metadata = current_user.get("user_metadata") or {}
-        avatar_url = metadata.get("avatar_url") or metadata.get("picture")
+    try:
+        print(f"DEBUG: current_user = {current_user}")
+        user = user_service.get_user_by_id(current_user["user_id"])
+        print(f"DEBUG: user from DB = {user}")
         
-        from app.schemas.user import UserCreate
-        new_user = UserCreate(
-            email=current_user["email"],
-            auth_provider="google" if "google" in current_user["email"] else "email", # Simple heuristic
-            provider_id=current_user["user_id"],
-            avatar_url=avatar_url
-        )
-        # We need a way to pass the ID to create_user or ensure it uses the same ID
-        # Let's check user_service.create_user
-        user = user_service.create_user_with_id(current_user["user_id"], new_user)
-        
-    return user
+        if not user:
+            # Pull avatar from metadata if it exists (Google Auth)
+            metadata = current_user.get("user_metadata") or {}
+            avatar_url = metadata.get("avatar_url") or metadata.get("picture")
+            name = metadata.get("name") or metadata.get("full_name") or current_user["email"].split('@')[0]
+            print(f"DEBUG: metadata = {metadata}, avatar_url = {avatar_url}, name = {name}")
+            
+            from app.schemas.user import UserCreate
+            new_user = UserCreate(
+                email=current_user["email"],
+                auth_provider="google" if "google" in current_user["email"] else "email",
+                provider_id=current_user["user_id"],
+                avatar_url=avatar_url,
+                username=name,
+                base_balance=0
+            )
+            print(f"DEBUG: creating user with data = {new_user.model_dump()}")
+            user = user_service.create_user_with_id(current_user["user_id"], new_user)
+            print(f"DEBUG: created user = {user}")
+            
+        return user
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"DEBUG: Exception in /me: {e}\n{error_trace}")
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + error_trace)
 
 
 @router.patch("/me", response_model=UserResponse, summary="Update current user profile")

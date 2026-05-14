@@ -9,11 +9,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+from fastapi.responses import JSONResponse
+import traceback
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Global Exception", "error": str(exc), "trace": traceback.format_exc()}
+    )
+
 # ── CORS ─────────────────────────────────────────────────────────────────────
 # Allow the frontend origin to call this API.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=[
+        settings.frontend_url,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,3 +39,5 @@ app.include_router(router)
 @app.get("/", tags=["Health"])
 def health_check():
     return {"status": "ok", "message": "ULTRACK API is running."}
+
+
