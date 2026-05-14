@@ -3,25 +3,28 @@ import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import PageShell from '../../components/PageShell/PageShell';
 import Button from '../../components/ui/Button/Button';
 import Input from '../../components/ui/Input/Input';
+import { useAuth } from '../../context/AuthContext';
+import * as tasksApi from '../../api/tasks';
 import './TodosPage.css';
-
-const initialTasks = [
-  { id: 1, label: 'Study for CMSC 126', priority: 'Moderate' },
-  { id: 2, label: 'Review class notes', priority: 'Chill' },
-];
 
 const TASK_NAME_MAX_LENGTH = 80;
 const PRIORITY_OPTIONS = ['Chill', 'Moderate', 'Critical'];
 
+// Module-level cache to provide instant population on re-navigation
+let cachedTasks = null;
+
 export default function TodosPage() {
-  const [tasks, setTasks] = useState(initialTasks);
+  // Initialize with cache if available to prevent pop-in
+  const [tasks, setTasks] = useState(cachedTasks || []);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [taskInput, setTaskInput] = useState('');
   const [taskPriority, setTaskPriority] = useState('Moderate');
   const [taskError, setTaskError] = useState('');
   const [removingTasks, setRemovingTasks] = useState([]);
   const [isPriorityOpen, setIsPriorityOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const priorityRef = useRef(null);
+  const { user, loading: authLoading } = useAuth();
 
   const openAddTask = () => {
     setIsAddOpen(true);
@@ -35,28 +38,6 @@ export default function TodosPage() {
     setTaskInput('');
     setTaskPriority('Moderate');
     setTaskError('');
-    setIsPriorityOpen(false);
-  };
-
-  const handleAddTask = (event) => {
-    event.preventDefault();
-    const trimmed = taskInput.trim();
-    if (!trimmed) {
-      setTaskError('Task name cannot be empty.');
-      return;
-    }
-
-    const nextTask = {
-      id: Date.now(),
-      label: trimmed.slice(0, TASK_NAME_MAX_LENGTH),
-      priority: taskPriority,
-    };
-
-    setTasks((prev) => [nextTask, ...prev]);
-    setTaskInput('');
-    setTaskPriority('Moderate');
-    setTaskError('');
-    setIsAddOpen(false);
     setIsPriorityOpen(false);
   };
 
@@ -96,12 +77,100 @@ export default function TodosPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isPriorityOpen]);
 
-  const completeTask = (id) => {
+  useEffect(() => {
+    let active = true;
+
+    async function loadTasks() {
+      if (!user || authLoading) return;
+
+      try {
+        const fetched = await tasksApi.fetchTasks();
+        if (!active) return;
+        
+        const formatted = fetched.map((task) => ({
+          id: task.task_id,
+          label: task.title,
+          priority: task.priority,
+        }));
+
+        setTasks(formatted);
+        cachedTasks = formatted; // Update cache for next navigation
+      } catch (error) {
+        console.error('Failed to load tasks:', error);
+      }
+    }
+
+    loadTasks();
+
+    return () => {
+      active = false;
+    };
+  }, [user, authLoading]);
+
+  const handleAddTask = async (event) => {
+    event.preventDefault();
+    const trimmed = taskInput.trim();
+    if (!trimmed) {
+      setTaskError('Task name cannot be empty.');
+      return;
+    }
+
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const createdTask = await tasksApi.createTask({
+        title: trimmed.slice(0, TASK_NAME_MAX_LENGTH),
+        priority: taskPriority,
+      });
+
+      const nextTask = {
+        id: createdTask.task_id,
+        label: createdTask.title,
+        priority: createdTask.priority,
+      };
+
+      setTasks((prev) => {
+        const updated = [nextTask, ...prev];
+        cachedTasks = updated; // Sync cache
+        return updated;
+      });
+      setTaskInput('');
+      setTaskPriority('Moderate');
+      setTaskError('');
+      setIsAddOpen(false);
+      setIsPriorityOpen(false);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      setTaskError('Unable to save task right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const completeTask = async (id) => {
+    if (removingTasks.includes(id)) {
+      return;
+    }
+
     setRemovingTasks((prev) => [...prev, id]);
-    window.setTimeout(() => {
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+
+    try {
+      await tasksApi.deleteTask(id);
+      window.setTimeout(() => {
+        setTasks((prev) => {
+          const updated = prev.filter((task) => task.id !== id);
+          cachedTasks = updated; // Sync cache
+          return updated;
+        });
+        setRemovingTasks((prev) => prev.filter((item) => item !== id));
+      }, 220);
+    } catch (error) {
+      console.error('Failed to complete task:', error);
       setRemovingTasks((prev) => prev.filter((item) => item !== id));
-    }, 220);
+    }
   };
 
   return (

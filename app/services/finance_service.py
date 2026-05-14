@@ -4,6 +4,16 @@ from decimal import Decimal
 TABLE = "transactions"
 
 
+def _serialize_payload(payload: dict) -> dict:
+    serialized = {}
+    for key, value in payload.items():
+        if isinstance(value, Decimal):
+            serialized[key] = float(value)
+        else:
+            serialized[key] = value
+    return serialized
+
+
 def get_all_transactions(user_id: str) -> list[dict]:
     """Return all transactions for a user."""
     response = (
@@ -32,16 +42,16 @@ def get_transaction(transaction_id: int, user_id: str) -> dict | None:
 def create_transaction(user_id: str, data: dict) -> dict:
     """Insert a new transaction."""
     data["user_id"] = user_id
+    data = _serialize_payload(data)
     response = supabase_admin.table(TABLE).insert(data).execute()
     return response.data[0]
 
 
 def update_transaction(transaction_id: int, user_id: str, data: dict) -> dict:
     """Update a transaction. Scoped to the user."""
-    
     if "amount" in data:
         data["amount"] = float(data["amount"])
-        
+    data = _serialize_payload(data)
     response = (
         supabase_admin.table(TABLE)
         .update(data)

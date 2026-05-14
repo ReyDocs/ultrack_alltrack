@@ -15,10 +15,12 @@ function PencilIcon() {
 }
 
 export default function UserProfile({ subtitle, className = '' }) {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, uploadAvatar } = useAuth();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState(user?.name?.slice(0, NAME_MAX_LENGTH) ?? 'User');
   const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl ?? null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFileName, setSelectedFileName] = useState('No file selected');
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
@@ -28,6 +30,7 @@ export default function UserProfile({ subtitle, className = '' }) {
     setName(user?.name?.slice(0, NAME_MAX_LENGTH) ?? 'User');
     setAvatarPreview(user?.avatarUrl ?? null);
     setSelectedFileName(user?.avatarUrl ? 'Current profile picture' : 'No file selected');
+    setSelectedFile(null);
   }, [user?.name, user?.avatarUrl]);
 
   useEffect(() => {
@@ -51,20 +54,35 @@ export default function UserProfile({ subtitle, className = '' }) {
     previewUrlRef.current = nextUrl;
     setAvatarPreview(nextUrl);
     setSelectedFileName(file.name);
+    setSelectedFile(file);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       setError('Display name cannot be empty.');
       return;
     }
 
-    updateProfile({
-      name: name.trim(),
-      avatarUrl: avatarPreview || null,
-    });
+    setSaving(true);
     setError('');
-    setEditing(false);
+    
+    try {
+      // 1. If there's a new file, upload it first
+      if (selectedFile) {
+        await uploadAvatar(selectedFile);
+      }
+
+      // 2. Update name (this will also refresh the user state globally)
+      await updateProfile({
+        name: name.trim()
+      });
+
+      setEditing(false);
+    } catch (err) {
+      setError(err.message || 'Failed to save changes.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -145,8 +163,9 @@ export default function UserProfile({ subtitle, className = '' }) {
                 type="button"
                 className="user-profile__action user-profile__action--primary"
                 onClick={handleSave}
+                disabled={saving}
               >
-                Save
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

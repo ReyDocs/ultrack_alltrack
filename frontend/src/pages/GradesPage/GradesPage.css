@@ -264,3 +264,54 @@
     justify-content: center;
   }
 }
+
+/* ─── GWA Result Card ─────────────────────────────────────────────────────── */
+.grades-result {
+  margin-top: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: card-enter var(--dur-page) var(--ease-cinematic) both;
+}
+
+.grades-result__label {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+.grades-result__value {
+  color: #ffffff;
+  font-size: 64px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.grades-result__desc {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  max-width: 440px;
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .grades-result {
+    padding: 28px 20px;
+    margin-top: 24px;
+  }
+  
+  .grades-result__value {
+    font-size: 48px;
+  }
+}
