@@ -8,13 +8,27 @@ const REFRESH_TOKEN_KEY = 'ultrack_refresh_token';
 
 const AuthContext = createContext(null);
 
-function buildUser(profile) {
-  return {
-    id: profile.id,
-    email: profile.email,
-    name: profile.username || profile.email?.split('@')[0] || 'User',
-    avatarUrl: profile.avatar_url || null,
-  };
+function buildUser(profile, supabaseUser = null) {
+  if (profile) {
+    return {
+      id: profile.id,
+      email: profile.email,
+      name: profile.username || profile.email?.split('@')[0] || 'User',
+      avatarUrl: profile.avatar_url || null,
+      isHydrated: true
+    };
+  }
+  if (supabaseUser) {
+    const metadata = supabaseUser.user_metadata || {};
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email,
+      name: metadata.full_name || metadata.name || supabaseUser.email?.split('@')[0] || 'User',
+      avatarUrl: metadata.avatar_url || metadata.picture || null,
+      isHydrated: false
+    };
+  }
+  return null;
 }
 
 function saveSessionTokens(accessToken, refreshToken) {
@@ -44,40 +58,45 @@ export function AuthProvider({ children }) {
     clearSessionTokens();
   }, []);
 
-  const restoreSession = useCallback(async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    const token = session?.access_token;
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
+  const hydrateProfile = useCallback(async (token, supabaseUser) => {
     try {
+      // Set fallback user immediately to unblock the UI
+      setUser(buildUser(null, supabaseUser));
+      
       const profile = await authApi.fetchMe(token);
       setUser(buildUser(profile));
-    } catch {
-      setUser(null);
+    } catch (error) {
+      console.warn('Backend hydration failed, staying with fallback:', error);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const restoreSession = useCallback(async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      if (!session) {
+        setLoading(false);
+        return;
+      }
+
+      await hydrateProfile(session.access_token, session.user);
+    } catch (err) {
+      console.error('Restore session failed:', err);
+      setLoading(false);
+    }
+  }, [hydrateProfile]);
+
   useEffect(() => {
     restoreSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`Auth Event: ${event}`);
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        const token = session?.access_token;
-        if (token) {
-          try {
-            const profile = await authApi.fetchMe(token);
-            setUser(buildUser(profile));
-          } catch (error) {
-            console.error('Failed to sync user profile:', error);
-          } finally {
-            setLoading(false);
-          }
+        if (session?.access_token) {
+          await hydrateProfile(session.access_token, session.user);
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -88,7 +107,7 @@ export function AuthProvider({ children }) {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [restoreSession]);
+  }, [restoreSession, hydrateProfile]);
 
   const login = useCallback(async ({ email, password }) => {
     setLoading(true);
@@ -96,32 +115,25 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       
-      const token = data.session?.access_token;
-      // We still fetch the profile from the backend to hydrate our local state
-      const profile = await authApi.fetchMe(token);
-      setUser(buildUser(profile));
+      if (data.session) {
+        await hydrateProfile(data.session.access_token, data.session.user);
+      }
       return true;
     } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    } finally {
       setLoading(false);
+      throw error;
     }
-  }, []);
+  }, [hydrateProfile]);
 
   const signup = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      // After signup, Supabase usually signs the user in automatically or requires verification.
-      // We attempt to log in to get the session.
       return await login({ email, password });
     } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
-    } finally {
       setLoading(false);
+      throw error;
     }
   }, [login]);
 
