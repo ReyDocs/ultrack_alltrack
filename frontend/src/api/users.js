@@ -1,3 +1,5 @@
+import { supabase } from '../config/supabase';
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
 
 async function parseJsonResponse(response) {
@@ -12,7 +14,8 @@ async function parseJsonResponse(response) {
 }
 
 async function request(path, options = {}) {
-  const accessToken = localStorage.getItem('ultrack_access_token');
+  const { data: { session } } = await supabase.auth.getSession();
+  const accessToken = session?.access_token;
   
   const headers = {
     ...(options.headers || {}),

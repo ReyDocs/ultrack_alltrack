@@ -45,73 +45,59 @@ export function AuthProvider({ children }) {
   }, []);
 
   const restoreSession = useCallback(async () => {
-    // If we are in the middle of a PKCE OAuth callback, do NOT finish loading yet.
-    // The onAuthStateChange listener will handle the exchange and set loading to false.
-    if (window.location.search.includes('code=')) {
-      return;
-    }
+    const { data: { session }, error } = await supabase.auth.getSession();
+    const token = session?.access_token;
 
-    let accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-
-    if (!accessToken) {
-      const { data, error } = await supabase.auth.getSession();
-      if (!error && data?.session?.access_token) {
-        accessToken = data.session.access_token;
-        saveSessionTokens(accessToken, data.session.refresh_token);
-      }
-    }
-
-    if (!accessToken) {
+    if (!token) {
       setLoading(false);
       return;
     }
 
     try {
-      const profile = await authApi.fetchMe(accessToken);
+      const profile = await authApi.fetchMe(token);
       setUser(buildUser(profile));
     } catch {
-      clearSession();
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  }, [clearSession]);
+  }, []);
 
   useEffect(() => {
     restoreSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session?.access_token) {
-          saveSessionTokens(session.access_token, session.refresh_token);
+        const token = session?.access_token;
+        if (token) {
           try {
-            const profile = await authApi.fetchMe(session.access_token);
+            const profile = await authApi.fetchMe(token);
             setUser(buildUser(profile));
           } catch (error) {
             console.error('Failed to sync user profile:', error);
           } finally {
-            // Only set loading to false here if we were waiting for an OAuth callback
             setLoading(false);
           }
         }
       } else if (event === 'SIGNED_OUT') {
-        clearSession();
+        setUser(null);
         setLoading(false);
-      } else if (event === 'USER_UPDATED') {
-         // handle if needed
       }
     });
 
     return () => {
       subscription?.unsubscribe();
     };
-  }, [restoreSession, clearSession]);
+  }, [restoreSession]);
 
   const login = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
-      const data = await authApi.login({ email, password });
-      saveSessionTokens(data.access_token, data.refresh_token);
-      const profile = await authApi.fetchMe(data.access_token);
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      
+      const token = data.session?.access_token;
+      const profile = await authApi.fetchMe(token);
       setUser(buildUser(profile));
       return true;
     } finally {
@@ -122,7 +108,8 @@ export function AuthProvider({ children }) {
   const signup = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
-      await authApi.signup({ email, password });
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
       return await login({ email, password });
     } finally {
       setLoading(false);
@@ -131,7 +118,12 @@ export function AuthProvider({ children }) {
 
   const googleLogin = useCallback(async () => {
     try {
-      await authApi.googleLogin();
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
     } catch (error) {
       console.error('Google login trigger failed:', error);
       throw error;

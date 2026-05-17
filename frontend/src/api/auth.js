@@ -1,3 +1,4 @@
+import { supabase } from "../config/supabase";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
 
 async function parseJsonResponse(response) {
@@ -61,10 +62,12 @@ export async function signup(credentials) {
 }
 
 export async function googleLogin() {
-  const data = await request('/api/v1/auth/google');
-  if (data?.url) {
-    window.location.href = data.url;
-  }
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
 }
 
 export async function logout() {

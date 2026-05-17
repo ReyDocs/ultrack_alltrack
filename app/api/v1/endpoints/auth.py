@@ -58,41 +58,19 @@ def login(body: EmailLoginRequest):
         print("===================\n\n", file=sys.stderr)
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/google")
-def google_login():
-    response = supabase.auth.sign_in_with_oauth({
-        "provider": "google",
-        "options": {"redirect_to": f"{settings.backend_url}/api/v1/auth/google/callback"},
-    })
-    return {"url": response.url}
+# @router.get("/google")
+# def google_login():
+#     response = supabase.auth.sign_in_with_oauth({
+#         "provider": "google",
+#         "options": {"redirect_to": f"{settings.backend_url}/api/v1/auth/google/callback"},
+#     })
+#     return {"url": response.url}
 
-@router.get("/google/callback")
-def google_callback(code: str | None = None, error: str | None = None):
-    if error:
-        return RedirectResponse(url=f"{settings.frontend_url}/login?error={error}")
-    
-    if code:
-        try:
-            res = supabase.auth.exchange_code_for_session({"auth_code": code})
-            session = res.session
-            if session:
-                # Redirect to frontend callback with tokens so supabase-js can hydrate
-                fragment_items = [
-                    ("access_token", session.access_token),
-                    ("refresh_token", session.refresh_token),
-                    ("token_type", session.token_type),
-                    ("expires_in", str(session.expires_in)),
-                ]
-                if getattr(session, "provider_token", None):
-                    fragment_items.append(("provider_token", session.provider_token))
-                fragment = "&".join(f"{key}={value}" for key, value in fragment_items)
-                redirect_url = f"{settings.frontend_url}/auth/callback#{fragment}"
-                return RedirectResponse(url=redirect_url)
-        except Exception as e:
-            print(f"OAuth code exchange failed: {e}")
-            return RedirectResponse(url=f"{settings.frontend_url}/login?error=exchange_failed")
-
-    return RedirectResponse(url=f"{settings.frontend_url}/dashboard")
+# @router.get("/google/callback")
+# def google_callback(code: str | None = None, error: str | None = None):
+#     if error:
+#         return RedirectResponse(url=f"{settings.frontend_url}/login?error={error}")
+#     return RedirectResponse(url=f"{settings.frontend_url}/dashboard")
 
 @router.post("/logout")
 def logout():

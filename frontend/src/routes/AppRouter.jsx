@@ -15,8 +15,6 @@ import PrivacyPage from '../pages/PrivacyPage/PrivacyPage';
 import AuthCallbackPage from '../pages/AuthCallbackPage/AuthCallbackPage';
 import PageTransition from '../components/PageTransition/PageTransition';
 import { useAuth } from '../context/AuthContext';
-
-/** Protected Route component */
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -42,7 +40,6 @@ function AnimatedRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/to-dos" element={<ProtectedRoute><TodosPage /></ProtectedRoute>} />
         <Route path="/finances" element={<ProtectedRoute><FinancesPage /></ProtectedRoute>} />
@@ -52,7 +49,7 @@ function AnimatedRoutes() {
         <Route path="/lock-in" element={<ProtectedRoute><PomodoroPage /></ProtectedRoute>} />
         <Route path="/career" element={<ProtectedRoute><CareerPage /></ProtectedRoute>} />
         <Route path="/terms" element={<TermsPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </PageTransition>
