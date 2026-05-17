@@ -58,19 +58,21 @@ def login(body: EmailLoginRequest):
         print("===================\n\n", file=sys.stderr)
         raise HTTPException(status_code=500, detail=str(e))
 
-# @router.get("/google")
-# def google_login():
-#     response = supabase.auth.sign_in_with_oauth({
-#         "provider": "google",
-#         "options": {"redirect_to": f"{settings.backend_url}/api/v1/auth/google/callback"},
-#     })
-#     return {"url": response.url}
+@router.get("/google")
+def google_login():
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Supabase client not initialized")
+    response = supabase.auth.sign_in_with_oauth({
+        "provider": "google",
+        "options": {"redirect_to": f"{settings.backend_url}/api/v1/auth/google/callback"},
+    })
+    return {"url": response.url}
 
-# @router.get("/google/callback")
-# def google_callback(code: str | None = None, error: str | None = None):
-#     if error:
-#         return RedirectResponse(url=f"{settings.frontend_url}/login?error={error}")
-#     return RedirectResponse(url=f"{settings.frontend_url}/dashboard")
+@router.get("/google/callback")
+def google_callback(code: str | None = None, error: str | None = None):
+    if error:
+        return RedirectResponse(url=f"{settings.frontend_url}/login?error={error}")
+    return RedirectResponse(url=f"{settings.frontend_url}/dashboard")
 
 @router.post("/logout")
 def logout():
