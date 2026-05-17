@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     auth_provider   VARCHAR(50)  NOT NULL,
     provider_id     VARCHAR(255) NOT NULL,
     email_verified  BOOLEAN      NOT NULL DEFAULT FALSE,
+    username        VARCHAR(255),
+    base_balance    DECIMAL(10, 2) NOT NULL DEFAULT 0,
     created_at      TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_login      TIMESTAMP
 );

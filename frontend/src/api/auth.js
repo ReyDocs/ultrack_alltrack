@@ -61,7 +61,10 @@ export async function signup(credentials) {
 }
 
 export async function googleLogin() {
-  return request('/api/v1/auth/google');
+  const data = await request('/api/v1/auth/google');
+  if (data?.url) {
+    window.location.href = data.url;
+  }
 }
 
 export async function logout() {

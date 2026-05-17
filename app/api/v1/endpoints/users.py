@@ -20,12 +20,13 @@ def get_me(current_user: dict = Depends(get_current_user)):
             metadata = current_user.get("user_metadata") or {}
             avatar_url = metadata.get("avatar_url") or metadata.get("picture")
             name = metadata.get("name") or metadata.get("full_name") or current_user["email"].split('@')[0]
-            print(f"DEBUG: metadata = {metadata}, avatar_url = {avatar_url}, name = {name}")
+            provider = metadata.get("provider") or "email"
+            print(f"DEBUG: metadata = {metadata}, avatar_url = {avatar_url}, name = {name}, provider = {provider}")
             
             from app.schemas.user import UserCreate
             new_user = UserCreate(
                 email=current_user["email"],
-                auth_provider="google" if "google" in current_user["email"] else "email",
+                auth_provider=provider,
                 provider_id=current_user["user_id"],
                 avatar_url=avatar_url,
                 username=name,

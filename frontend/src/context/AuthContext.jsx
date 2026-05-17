@@ -130,13 +130,10 @@ export function AuthProvider({ children }) {
   }, [login]);
 
   const googleLogin = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) {
+    try {
+      await authApi.googleLogin();
+    } catch (error) {
+      console.error('Google login trigger failed:', error);
       throw error;
     }
   }, []);

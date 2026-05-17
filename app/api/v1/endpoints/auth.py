@@ -77,7 +77,16 @@ def google_callback(code: str | None = None, error: str | None = None):
             session = res.session
             if session:
                 # Redirect to frontend callback with tokens so supabase-js can hydrate
-                redirect_url = f"{settings.frontend_url}/auth/callback#access_token={session.access_token}&refresh_token={session.refresh_token}"
+                fragment_items = [
+                    ("access_token", session.access_token),
+                    ("refresh_token", session.refresh_token),
+                    ("token_type", session.token_type),
+                    ("expires_in", str(session.expires_in)),
+                ]
+                if getattr(session, "provider_token", None):
+                    fragment_items.append(("provider_token", session.provider_token))
+                fragment = "&".join(f"{key}={value}" for key, value in fragment_items)
+                redirect_url = f"{settings.frontend_url}/auth/callback#{fragment}"
                 return RedirectResponse(url=redirect_url)
         except Exception as e:
             print(f"OAuth code exchange failed: {e}")
