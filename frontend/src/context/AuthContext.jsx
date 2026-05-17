@@ -93,18 +93,12 @@ export function AuthProvider({ children }) {
   const login = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
-      const data = await authApi.login({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       
-      // Manually set the session in the Supabase client so it 'reads' the backend auth
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      });
-
-      if (sessionError) throw sessionError;
-
-      // Profile is fetched via onAuthStateChange listener or manually here
-      const profile = await authApi.fetchMe(data.access_token);
+      const token = data.session?.access_token;
+      // We still fetch the profile from the backend to hydrate our local state
+      const profile = await authApi.fetchMe(token);
       setUser(buildUser(profile));
       return true;
     } catch (error) {
@@ -118,8 +112,10 @@ export function AuthProvider({ children }) {
   const signup = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
-      await authApi.signup({ email, password });
-      // After signup, we log in
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      // After signup, Supabase usually signs the user in automatically or requires verification.
+      // We attempt to log in to get the session.
       return await login({ email, password });
     } catch (error) {
       console.error('Signup failed:', error);
