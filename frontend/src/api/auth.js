@@ -1,6 +1,10 @@
 import { supabase } from "../config/supabase";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
 
+if (!BACKEND_URL && import.meta.env.PROD) {
+  console.warn('VITE_BACKEND_URL is not defined. API calls will likely fail in production.');
+}
+
 async function parseJsonResponse(response) {
   const text = await response.text();
   if (!text) return null;

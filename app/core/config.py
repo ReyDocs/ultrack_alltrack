@@ -13,8 +13,8 @@ class Settings(BaseSettings):
 
     # App
     app_secret_key: str
-    frontend_url: str = "http://localhost:3000"
-    backend_url: str = "http://localhost:8000"
+    frontend_url: str
+    backend_url: str
     environment: str = "development"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
