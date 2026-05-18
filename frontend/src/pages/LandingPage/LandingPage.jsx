@@ -9,14 +9,11 @@ import HowItWorksSection from '../../sections/HowItWorksSection/HowItWorksSectio
 import CTABanner from '../../sections/CTABanner/CTABanner';
 
 export default function LandingPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  console.log('[AuthDebug] LandingPage rendering, user:', !!user, 'loading:', loading);
 
   useEffect(() => {
     if (user) {
-      console.log('[AuthDebug] LandingPage detecting user, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);

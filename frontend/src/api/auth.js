@@ -68,7 +68,6 @@ export async function signup(credentials) {
 export async function googleLogin() {
   const origin = window.location.origin.replace(/\/$/, '');
   const redirectTo = `${origin}/auth/callback`;
-  console.log('[AuthDebug] Starting Google Login, redirectTo:', redirectTo);
   
   await supabase.auth.signInWithOAuth({
     provider: 'google',

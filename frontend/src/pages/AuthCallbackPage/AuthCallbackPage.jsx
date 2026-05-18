@@ -4,26 +4,21 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [error, setError] = useState(null);
 
-  console.log('[AuthDebug] AuthCallbackPage rendering, user:', !!user, 'loading:', loading);
-
   useEffect(() => {
-    console.log('[AuthDebug] AuthCallbackPage mounting, URL:', window.location.href);
     // Check for error in URL search or hash
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const err = params.get('error') || hashParams.get('error');
     if (err) {
-      console.error('[AuthDebug] Auth error detected:', err);
       setError(params.get('error_description') || hashParams.get('error_description') || err);
     }
   }, []);
 
   useEffect(() => {
     if (user) {
-      console.log('[AuthDebug] AuthCallbackPage detecting user, navigating to dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
