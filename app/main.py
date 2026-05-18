@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import router
 from app.core.config import settings
@@ -9,6 +9,20 @@ app = FastAPI(
     description="Backend for ULTRACK — the student productivity platform.",
     version="1.0.0",
 )
+
+# ── Proxy Middleware ─────────────────────────────────────────────────────────
+@app.middleware("http")
+async def fix_proxy_protocol(request: Request, call_next):
+    """
+    Ensure the request scheme is correctly set to https if the X-Forwarded-Proto
+    header is present. This prevents FastAPI from generating HTTP redirects
+    when running behind a proxy like Railway.
+    """
+    proto = request.headers.get("x-forwarded-proto")
+    if proto:
+        request.scope["scheme"] = proto
+    response = await call_next(request)
+    return response
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
