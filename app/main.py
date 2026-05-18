@@ -24,7 +24,8 @@ app.add_middleware(
     allow_origins=[
         settings.frontend_url,
         "https://ultrackalltrack.vercel.app",
-        "https://ultrack-alltrack.vercel.app",
+        "https://ultrack-alltrack.vercel.app", 
+        "https://www.ultrack.site",
         "http://localhost:3000",
         "http://localhost:5173",
     ],
