@@ -36,19 +36,24 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('[AuthDebug] AuthProvider rendering, user:', !!user, 'loading:', loading);
+
   const clearSession = useCallback(() => {
+    console.log('[AuthDebug] Clearing session');
     setUser(null);
   }, []);
 
   const hydrateProfile = useCallback(async (token, supabaseUser) => {
+    console.log('[AuthDebug] Hydrating profile for:', supabaseUser?.email);
     try {
       // Set fallback user immediately to unblock the UI
       setUser(buildUser(null, supabaseUser));
       
       const profile = await authApi.fetchMe(token);
+      console.log('[AuthDebug] Profile hydrated from backend:', profile?.email);
       setUser(buildUser(profile));
     } catch (error) {
-      console.warn('Backend hydration failed, staying with fallback:', error);
+      console.error('[AuthDebug] Backend hydration failed:', error);
     } finally {
       setLoading(false);
     }
@@ -56,11 +61,27 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
+    console.log('[AuthDebug] AuthProvider useEffect mounting');
 
-    // The listener handles the initial session and all subsequent changes
+    // Manually check for session in case the listener misses the initial event
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[AuthDebug] getSession result:', !!session);
+      if (mounted && session) {
+        hydrateProfile(session.access_token, session.user);
+      } else if (mounted && !session) {
+        // Only set loading false if we're sure no hash is being processed
+        if (!window.location.hash) {
+          setLoading(false);
+        }
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`Auth Event: ${event}`);
-      if (!mounted) return;
+      console.error(`[AuthDebug] Auth Event Fired: ${event}`, !!session);
+      if (!mounted) {
+        console.warn('[AuthDebug] Event ignored because component unmounted');
+        return;
+      }
 
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.access_token) {
@@ -75,6 +96,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => {
+      console.log('[AuthDebug] AuthProvider useEffect unmounting');
       mounted = false;
       subscription?.unsubscribe();
     };
@@ -107,15 +129,11 @@ export function AuthProvider({ children }) {
   }, [login]);
 
   const googleLogin = useCallback(async () => {
+    console.log('[AuthDebug] googleLogin triggered from context');
     try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      await authApi.googleLogin();
     } catch (error) {
-      console.error('Google login trigger failed:', error);
+      console.error('[AuthDebug] Google login trigger failed:', error);
       throw error;
     }
   }, []);

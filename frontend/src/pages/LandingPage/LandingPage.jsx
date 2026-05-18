@@ -9,13 +9,14 @@ import HowItWorksSection from '../../sections/HowItWorksSection/HowItWorksSectio
 import CTABanner from '../../sections/CTABanner/CTABanner';
 
 export default function LandingPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  console.log('[AuthDebug] LandingPage rendering, user:', !!user, 'loading:', loading);
+
   useEffect(() => {
-    // If a user lands on the root page and is already authenticated
-    // (e.g., via a Supabase redirect fallback), send them to the dashboard.
     if (user) {
+      console.log('[AuthDebug] LandingPage detecting user, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
