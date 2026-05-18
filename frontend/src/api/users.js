@@ -51,7 +51,7 @@ async function request(path, options = {}) {
  * Expects fields like { username: "..." }
  */
 export async function updateMe(updates) {
-  return request('/api/v1/users/me', {
+  return request('/api/v1/users/me/', {
     method: 'PATCH',
     body: JSON.stringify(updates),
   });
@@ -65,7 +65,7 @@ export async function uploadAvatar(file) {
   const formData = new FormData();
   formData.append('file', file);
 
-  return request('/api/v1/users/me/avatar', {
+  return request('/api/v1/users/me/avatar/', {
     method: 'POST',
     body: formData,
   });

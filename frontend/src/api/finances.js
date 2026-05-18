@@ -47,36 +47,36 @@ async function request(path, options = {}) {
 }
 
 export async function fetchTransactions() {
-  return request('/api/v1/finances');
+  return request('/api/v1/finances/');
 }
 
 export async function fetchBalance() {
-  return request('/api/v1/finances/balance');
+  return request('/api/v1/finances/balance/');
 }
 
 export async function createTransaction(transaction) {
-  return request('/api/v1/finances', {
+  return request('/api/v1/finances/', {
     method: 'POST',
     body: JSON.stringify(transaction),
   });
 }
 
 export async function updateTransaction(transactionId, transaction) {
-  return request(`/api/v1/finances/${transactionId}`, {
+  return request(`/api/v1/finances/${transactionId}/`, {
     method: 'PATCH',
     body: JSON.stringify(transaction),
   });
 }
 
 export async function deleteTransaction(transactionId) {
-  return request(`/api/v1/finances/${transactionId}`, {
+  return request(`/api/v1/finances/${transactionId}/`, {
     method: 'DELETE',
   });
 }
 
 export async function updateBalance(newBalance) {
   // Update users.base_balance via the users endpoint
-  return request('/api/v1/users/me', {
+  return request('/api/v1/users/me/', {
     method: 'PATCH',
     body: JSON.stringify({ base_balance: newBalance }),
   });

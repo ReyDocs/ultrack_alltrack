@@ -47,25 +47,25 @@ async function request(path, options = {}) {
 }
 
 export async function fetchResources() {
-  return request('/api/v1/resources');
+  return request('/api/v1/resources/');
 }
 
 export async function createResource(resource) {
-  return request('/api/v1/resources', {
+  return request('/api/v1/resources/', {
     method: 'POST',
     body: JSON.stringify(resource),
   });
 }
 
 export async function updateResource(resourceId, resource) {
-  return request(`/api/v1/resources/${resourceId}`, {
+  return request(`/api/v1/resources/${resourceId}/`, {
     method: 'PATCH',
     body: JSON.stringify(resource),
   });
 }
 
 export async function deleteResource(resourceId) {
-  return request(`/api/v1/resources/${resourceId}`, {
+  return request(`/api/v1/resources/${resourceId}/`, {
     method: 'DELETE',
   });
 }

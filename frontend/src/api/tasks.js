@@ -47,18 +47,18 @@ async function request(path, options = {}) {
 }
 
 export async function fetchTasks() {
-  return request('/api/v1/tasks');
+  return request('/api/v1/tasks/');
 }
 
 export async function createTask(task) {
-  return request('/api/v1/tasks', {
+  return request('/api/v1/tasks/', {
     method: 'POST',
     body: JSON.stringify(task),
   });
 }
 
 export async function deleteTask(taskId) {
-  return request(`/api/v1/tasks/${taskId}`, {
+  return request(`/api/v1/tasks/${taskId}/`, {
     method: 'DELETE',
   });
 }

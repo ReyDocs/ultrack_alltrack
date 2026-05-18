@@ -52,14 +52,14 @@ export function normalizeUserFromBackend(profile) {
 }
 
 export async function login(credentials) {
-  return request('/api/v1/auth/login', {
+  return request('/api/v1/auth/login/', {
     method: 'POST',
     body: JSON.stringify(credentials),
   });
 }
 
 export async function signup(credentials) {
-  return request('/api/v1/auth/signup', {
+  return request('/api/v1/auth/signup/', {
     method: 'POST',
     body: JSON.stringify(credentials),
   });
@@ -67,7 +67,7 @@ export async function signup(credentials) {
 
 export async function googleLogin() {
   const origin = window.location.origin.replace(/\/$/, '');
-  const redirectTo = `${origin}/auth/callback`;
+  const redirectTo = `${origin}/auth/callback/`;
   
   await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -78,13 +78,13 @@ export async function googleLogin() {
 }
 
 export async function logout() {
-  return request('/api/v1/auth/logout', {
+  return request('/api/v1/auth/logout/', {
     method: 'POST',
   });
 }
 
 export async function fetchMe(accessToken) {
-  return request('/api/v1/users/me', {
+  return request('/api/v1/users/me/', {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,
