@@ -50,8 +50,9 @@ def create_user_with_id(user_id: str, data: UserCreate) -> dict:
     payload["created_at"] = datetime.now(timezone.utc)
     payload = _serialize_payload(payload)
     print(f"DEBUG: payload = {payload}")
-    result = supabase_admin.table(TABLE).insert(payload).execute()
-    print(f"DEBUG: insert result = {result}, data = {result.data}")
+    # Use upsert to be idempotent
+    result = supabase_admin.table(TABLE).upsert(payload).execute()
+    print(f"DEBUG: upsert result = {result}, data = {result.data}")
     return result.data[0]
 
 

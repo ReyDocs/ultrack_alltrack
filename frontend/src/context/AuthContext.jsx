@@ -3,9 +3,6 @@ import { supabase } from '../config/supabase';
 import * as authApi from '../api/auth';
 import * as usersApi from '../api/users';
 
-const ACCESS_TOKEN_KEY = 'ultrack_access_token';
-const REFRESH_TOKEN_KEY = 'ultrack_refresh_token';
-
 const AuthContext = createContext(null);
 
 function buildUser(profile, supabaseUser = null) {
@@ -31,20 +28,6 @@ function buildUser(profile, supabaseUser = null) {
   return null;
 }
 
-function saveSessionTokens(accessToken, refreshToken) {
-  if (accessToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  }
-  if (refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-  }
-}
-
-function clearSessionTokens() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-}
-
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -55,7 +38,6 @@ export function AuthProvider({ children }) {
 
   const clearSession = useCallback(() => {
     setUser(null);
-    clearSessionTokens();
   }, []);
 
   const hydrateProfile = useCallback(async (token, supabaseUser) => {
@@ -72,31 +54,19 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const restoreSession = useCallback(async () => {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-
-      if (!session) {
-        setLoading(false);
-        return;
-      }
-
-      await hydrateProfile(session.access_token, session.user);
-    } catch (err) {
-      console.error('Restore session failed:', err);
-      setLoading(false);
-    }
-  }, [hydrateProfile]);
-
   useEffect(() => {
-    restoreSession();
+    let mounted = true;
 
+    // The listener handles the initial session and all subsequent changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`Auth Event: ${event}`);
+      if (!mounted) return;
+
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.access_token) {
           await hydrateProfile(session.access_token, session.user);
+        } else {
+          setLoading(false);
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -105,9 +75,10 @@ export function AuthProvider({ children }) {
     });
 
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
     };
-  }, [restoreSession, hydrateProfile]);
+  }, [hydrateProfile]);
 
   const login = useCallback(async ({ email, password }) => {
     setLoading(true);
@@ -115,15 +86,13 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       
-      if (data.session) {
-        await hydrateProfile(data.session.access_token, data.session.user);
-      }
+      // onAuthStateChange handles the state update and hydration
       return true;
     } catch (error) {
       setLoading(false);
       throw error;
     }
-  }, [hydrateProfile]);
+  }, []);
 
   const signup = useCallback(async ({ email, password }) => {
     setLoading(true);
@@ -182,10 +151,12 @@ export function AuthProvider({ children }) {
   const uploadAvatar = useCallback(async (file) => {
     try {
       const data = await usersApi.uploadAvatar(file);
-      // After upload, we should refresh the user profile to get the new avatarUrl
-      const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-      const profile = await authApi.fetchMe(accessToken);
+      
+      // Refresh user profile with correct token retrieval
+      const { data: { session } } = await supabase.auth.getSession();
+      const profile = await authApi.fetchMe(session?.access_token);
       setUser(buildUser(profile));
+      
       return data.avatar_url;
     } catch (error) {
       console.error('Failed to upload avatar:', error);

@@ -23,10 +23,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         settings.frontend_url,
-        "https://ultrack-alltrack.vercel.app/",
-        "https://ultrack-alltrack.vercel.app/",
-        "https://ultrack-alltrack.vercel.app/",
-        "https://ultrack-alltrack.vercel.app/",
+        "https://ultrackalltrack.vercel.app",
+        "https://ultrack-alltrack.vercel.app",
         "http://localhost:3000",
         "http://localhost:5173",
     ],
